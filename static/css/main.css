@@ -2,3 +2,125 @@ body {
   font-family: sans-serif;
   background-color: white;
 }
+
+/*Login Page CSS START*/
+
+.containerLogin {
+  text-align: center;
+  margin-top: 15%;
+}
+
+.containerLogin img {
+  margin-bottom: 2%;
+}
+
+.containerLogin .spaceBtnH2Img {
+  margin-bottom: 3%;
+}
+
+.containerLogin select {
+  padding: 1%;
+  text-align: center;
+  margin-bottom: 2%;
+}
+#nextButtonLoginPage {
+  margin: 2%;
+  background-color: #2b5ad1;
+  color: white;
+  padding: 0.5%;
+  border-radius: 8px;
+  padding-left: 1%;
+  padding-right: 1%;
+  cursor: pointer;
+}
+
+.containerLogin input {
+  margin: 1%;
+  text-align: center;
+  padding: 0.2%;
+}
+
+.containerLogin .alertError {
+  color: red;
+  margin: 1%;
+}
+
+.containerLogin #showPasswordLogin {
+  position: absolute;
+  transform: translateY(-50%);
+  width: 1.5%;
+  cursor: pointer;
+  font-size: 14px;
+  right: 44%;
+  top: 35.2%;
+}
+/*Login Page CSS END*/
+
+/*SignUP Page CSS START*/
+
+.containerSignup img {
+  margin-bottom: 2%;
+}
+
+.containerSignup {
+  text-align: center;
+  margin-top: 12%;
+}
+
+.signupForm {
+  margin: 2%;
+}
+
+.signupForm input {
+  text-align: center;
+  width: 15%;
+  padding: 0.5%;
+}
+
+.containerSignup .signUpButton {
+  background-color: #2b5ad1;
+  color: white;
+  padding: 0.5%;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.containerSignup .signupExistingUser {
+  margin-top: 2%;
+}
+
+.containerSignup .alertError {
+  color: red;
+  margin: 1%;
+}
+.passwordField {
+  position: relative;
+}
+
+#showPassword {
+  position: absolute;
+  transform: translateY(-50%);
+  width: 1.5%;
+  cursor: pointer;
+  font-size: 14px;
+  right: 42.6%;
+  top: 46.5%;
+}
+#showPassword2 {
+  position: absolute;
+  transform: translateY(-50%);
+  width: 1.5%;
+  cursor: pointer;
+  font-size: 14px;
+  right: 42.6%;
+  top: 52.8%;
+}
+
+#showPassword:hover {
+  color: navy;
+}
+
+.schoolDropdownSignup {
+  margin: 2%;
+}
+/*SignUP Page CSS END*/
