@@ -1,0 +1,96 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<title>Sign Up</title>
+<script>
+    function togglePassword() {
+        var password = document.getElementById("password");
+        if (password.type === "password") {
+            password.type = "text";
+            var img =document.getElementById("showPassword");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeNoView.png') }}");
+        } else {
+            password.type = "password";
+            var img =document.getElementById("showPassword");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeView.png') }}");
+        }
+    }
+    function toggleConfirmPassword() {
+        var password = document.getElementById("confirmPassword");
+        if (password.type === "password") {
+            password.type = "text";
+            var img =document.getElementById("showPassword2");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeNoView.png') }}");
+        } else {
+            password.type = "password";
+            var img =document.getElementById("showPassword2");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeView.png') }}");
+        }
+    }
+</script>
+{%endblock%}
+
+{%block body%}
+<div class="containerSignup">
+    <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+    <form method="POST" action="/signup">
+        <div class="signupForm">
+            {%if name%}
+                <input type="text" id="name" name="name" placeholder="Name" value="{{name}}"/>
+            {%else%}
+                <input type="text" id="name" name="name" placeholder="Name" required/>
+            {%endif%}
+        </div>
+
+        <div class="signupForm">
+            {%if username%}
+                <input type="text" id="username" name="username" placeholder="Username" value="{{username}}"/>
+            {%else%}
+                <input type="text" id="username" name="username" placeholder="Username" required/>
+            {%endif%}
+            
+        </div>
+        
+        <div class="signupForm">
+            {%if username%}
+                <input type="email"  id="email" name="email" placeholder="Email" value="{{email}}"/>
+            {%else%}
+                <input type="email"  id="email" name="email" placeholder="Email" required/>
+            {%endif%}
+            
+        </div>
+
+        <div class="signupForm">
+            <input type="password" id="password" name="password" class="passwordField" placeholder="Password" required/>
+            <img id="showPassword" src="{{url_for('static', filename='images/eyeView.png')}}" onclick="togglePassword()"/>
+        </div>
+
+        <div class="signupForm">
+            <input type="password" id="confirmPassword" name="confirmPassword" class="passwordField" placeholder="Confirm Password" required/>
+            <img id="showPassword2" src="{{url_for('static', filename='images/eyeView.png')}}" onclick="toggleConfirmPassword()"/>
+        </div>
+        {%if error%}
+            <div class="alertError">{{error}}</div>
+        {%endif%}
+
+        <div class="schoolDropdownSignup">
+            <select id="shoolDropdownSignupData" name="schoolData" required>
+                <option value="">Select School</option>
+                <option value="University at Buffalo">University at Buffalo</option>
+                <option value="Buffalo State University">Buffalo State University</option>
+                <option value="Canisius College">Canisius College</option>
+                <option value="Baruch College">Baruch College</option>
+                <option value="University of Albany">University of Albany</option>
+                <option value="Binghamton University">Binghamton University</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="signUpButton">Sign Up</button>
+        </div>
+    </form>
+    
+    <div class="signupExistingUser">
+        <p>Existing User? <span><a href="{{url_for('home')}}">Sign In!</a></span></p>
+    </div>
+</div>
+{%endblock%}
