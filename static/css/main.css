@@ -37,7 +37,8 @@ body {
 .containerLogin input {
   margin: 1%;
   text-align: center;
-  padding: 0.2%;
+  width: 15%;
+  padding: 0.5%;
 }
 
 .containerLogin .alertError {
@@ -51,8 +52,8 @@ body {
   width: 1.5%;
   cursor: pointer;
   font-size: 14px;
-  right: 44%;
-  top: 35.2%;
+  right: 42.3%;
+  top: 41.8%;
 }
 /*Login Page CSS END*/
 
@@ -104,7 +105,7 @@ body {
   cursor: pointer;
   font-size: 14px;
   right: 42.6%;
-  top: 46.5%;
+  top: 52.9%;
 }
 #showPassword2 {
   position: absolute;
@@ -113,7 +114,7 @@ body {
   cursor: pointer;
   font-size: 14px;
   right: 42.6%;
-  top: 52.8%;
+  top: 60%;
 }
 
 #showPassword:hover {

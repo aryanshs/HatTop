@@ -37,7 +37,10 @@
             </div>
             {%if AcctError%}
                 <div class="alertError">{{AcctError}}</div>
-                <a href="{{url_for('signUp')}}">SignUp</a>
+                <div>
+                    <a href="{{url_for('signUp')}}">SignUp</a>
+                </div>
+                
             {%endif%}
 
             {%if PasswordError%}

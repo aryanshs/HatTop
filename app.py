@@ -68,7 +68,7 @@ def loginPhase2():
         else:
             if userData['password'] != data['password']:
                 error_message = "Please Check Your Password"
-                return render_template('loginPhase2.html', username=data['username'], PasswordError=error_message)
+                return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], PasswordError=error_message)
             elif userData['schoolData'] != schoolData:
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
