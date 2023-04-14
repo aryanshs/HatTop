@@ -1,0 +1,68 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<title>Hat Top</title>
+<script>
+    function togglePassword() {
+        var password = document.getElementById("password");
+        if (password.type === "password") {
+            password.type = "text";
+            var img =document.getElementById("showPasswordLogin");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeNoView.png') }}");
+        } else {
+            password.type = "password";
+            var img =document.getElementById("showPasswordLogin");
+            img.setAttribute("src", "{{ url_for('static', filename='images/eyeView.png') }}");
+        }
+    }
+</script>
+{%endblock%}
+
+{%block body%}
+    <div class="containerLogin">
+        <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        <form method="POST" action="/login">
+            <input hidden name="schoolData" value="{{schoolSelected}}"/>
+            <div class="loginForm">
+                {%if username%}
+                    <input type="text" id="username" name="username" placeholder="Username" value="{{username}}"/>
+                {%else%}
+                    <input type="text" id="username" name="username" placeholder="Username" required/>
+                {%endif%}   
+            </div>
+
+            <div class="loginForm">
+                <input type="password" id="password" name="password" class="passwordField" placeholder="Password" required/>
+                <img id="showPasswordLogin" src="{{url_for('static', filename='images/eyeView.png')}}" onclick="togglePassword()"/>
+            </div>
+            {%if AcctError%}
+                <div class="alertError">{{AcctError}}</div>
+                <div>
+                    <a href="{{url_for('signUp')}}">SignUp</a>
+                </div>
+                
+            {%endif%}
+
+            {%if PasswordError%}
+                <div class="alertError">{{PasswordError}}</div>
+            {%endif%}
+
+            {%if SchoolError%}
+                <div class="alertError">{{SchoolError}}</div>
+                <div>
+                    <select id="shoolDropdown" name="schoolOption" required>
+                        <option value="">Select School</option>
+                        <option value="University at Buffalo">University at Buffalo</option>
+                        <option value="Buffalo State University">Buffalo State University</option>
+                        <option value="Canisius College">Canisius College</option>
+                        <option value="Baruch College">Baruch College</option>
+                        <option value="University of Albany">University of Albany</option>
+                        <option value="Binghamton University">Binghamton University</option>
+                    </select>
+                </div>
+            {%endif%}
+            <button type="submit" id="nextButtonLoginPage">Login</button>
+        </form>
+    </div>
+
+{%endblock%}

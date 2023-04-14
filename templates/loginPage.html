@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<title>Hat Top</title>
+{%endblock%}
+
+{%block body%}
+    <div class="containerLogin">
+        <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        <h2>Log in to Hat Top</h2>
+        <h2 class="spaceBtnH2Img">Welcome</h2>
+        <form method="POST" action="/">
+            <div>
+                <select id="shoolDropdown" name="schoolOption" required>
+                    <option value="">Select School</option>
+                    <option value="University at Buffalo">University at Buffalo</option>
+                    <option value="Buffalo State University">Buffalo State University</option>
+                    <option value="Canisius College">Canisius College</option>
+                    <option value="Baruch College">Baruch College</option>
+                    <option value="University of Albany">University of Albany</option>
+                    <option value="Binghamton University">Binghamton University</option>
+                </select>
+            </div>
+            <button type="submit" id="nextButtonLoginPage">Next</button>
+        </form>
+        <p>New User? <span><a href="{{url_for('signUp')}}">Sign Up!</a></span></p>
+    </div>
+    
+{%endblock%}

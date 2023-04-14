@@ -1,0 +1,3 @@
+TCP connections: https://docs.google.com/document/d/1lWlwqptA9RK0DoqC8yOv1OHEnMg-QqLqUQaRF5VoeCY/edit?usp=sharing
+Parsing HTTP headers: https://docs.google.com/document/d/1gr2xfYo1CxB_jnJOPzxt6wSpFGeiHPzmcLgXWx0p_Hc/edit?usp=sharing
+WebSockets: https://docs.google.com/document/d/1mpxPCsy-hzBgFs14pR7tQYz_Bta-BflFCn9qNzsAUEE/edit?usp=sharing
