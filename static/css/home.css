@@ -26,7 +26,6 @@
   grid-column: 3;
   grid-row: 1;
 }
-
 .pageDiv h1 {
   margin-top: 0%;
   margin-left: 0%;
@@ -46,6 +45,25 @@
 .hrAfterNav hr {
   margin-top: 0%;
 }
+.pageName{
+  cursor: pointer;
+  opacity: 1;
+}
+.pageName:hover{
+  opacity: 0.5;
+}
+
+.profileIconDiv{
+  grid-column: 6;
+  grid-row: 1;
+  
+  margin-right: 0%;
+  text-align: right;
+}
+.profileIcon{
+  width: 8%;
+}
+
 /*Nav Style End*/
 
 /*Home Page Content Start*/
