@@ -17,6 +17,7 @@ db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # creating a collection in the flask_db database
 
 
+# default Page
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == "POST":
@@ -28,6 +29,7 @@ def home():
     return render_template('loginPage.html')
 
 
+# Signup Page
 @app.route('/signup', methods=['GET', 'POST'])
 def signUp():
     if request.method == "POST":
@@ -53,19 +55,7 @@ def signUp():
     return render_template('signup.html')
 
 
-@app.route('/home')
-def homePage():
-    # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
-    userData = hatTop.find_one({'username': session.get('username')})
-    if 'professor' in userData:
-        if 'noContent' in userData:
-            return render_template('homePage.html', professor=True, noContent=True)
-
-    if 'student' in userData:
-        if 'noContent' in userData:
-            return render_template('homePage.html', student=True, noContent=True)
-
-
+# Professor Or Student Page
 @app.route('/professororstudent', methods=['GET', 'POST'])
 def profStudent():
     if request.method == "POST":
@@ -92,6 +82,7 @@ def profStudent():
     return render_template('professorOrStudent.html')
 
 
+# Login page
 @app.route('/login', methods=['GET', 'POST'])
 def loginPhase2():
     if request.method == "POST":
@@ -128,9 +119,27 @@ def loginPhase2():
     return render_template('loginPhase2.html')
 
 
+# Home Page
+@app.route('/home')
+def homePage():
+    # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
+    userData = hatTop.find_one({'username': session.get('username')})
+    if 'professor' in userData:
+        if 'noContent' in userData:
+            return render_template('homePage.html', professor=True, noContent=True)
+
+    if 'student' in userData:
+        if 'noContent' in userData:
+            return render_template('homePage.html', student=True, noContent=True)
+
+
+# Adding Courses Page
+@app.route('/addcourses')
+def addCourses():
+    return render_template('addCourses.html')
+
+
 # checking if user is logged in
-
-
 def userLoggedIn():
     username = session.get('username', None)
 
