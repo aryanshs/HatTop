@@ -34,11 +34,11 @@
         <div class="hrAfterJoinButton">
             <hr/>
         </div>
-        {%if professor%}
+        {%if noContent and professor%}
             <div class="noContentDiv">
                 <h6 class="noContent">Looks like you haven't signed up for any classes yet, click on "Join Course" to get started.</h6>
             </div>
-        {%elif student%}
+        {%elif noContent and student%}
             <div class="noContentDiv">
                 <h6>Looks like you haven't enrolled in any courses yet, click on "Join Course" to get started.</h6>
             </div>
