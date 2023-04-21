@@ -1,5 +1,4 @@
 from contextlib import redirect_stderr
-from crypt import methods
 from distutils.log import error
 from http import client
 from urllib import request
@@ -98,7 +97,13 @@ def loginPhase2():
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
-                return render_template('homePage.html')
+
+                userData = hatTop.find_one(
+                    {'username': session.get('username')})
+                if 'professor' in userData:
+                    return render_template('homePage.html', professor=True)
+                if 'student' in userData:
+                    return render_template('homePage.html', student=True)
 
         print(userData)
     return render_template('loginPhase2.html')
