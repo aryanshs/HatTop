@@ -98,7 +98,7 @@ def loginPhase2():
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
-                return render_template('professorOrStudent.html')
+                return render_template('homePage.html')
 
         print(userData)
     return render_template('loginPhase2.html')
