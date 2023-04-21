@@ -136,10 +136,18 @@ def homePage():
 # Adding Courses Page
 @app.route('/addcourses')
 def addCourses():
-    return render_template('addCourses.html')
 
+    # looking into the database to check if the user is a professor or a student
+    userData = hatTop.find_one({'username': session.get('username')})
+
+    if 'professor' in userData:
+        return render_template('addCourses.html', professor=True)
+    if 'student' in userData:
+        return render_template('addCourses.html', student=True)
 
 # checking if user is logged in
+
+
 def userLoggedIn():
     username = session.get('username', None)
 
