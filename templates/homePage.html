@@ -8,7 +8,7 @@
 {%block body%}
 <div class="containerHomePage">
     <div class="navDiv">
-        <div class="logo">
+        <div class="homeLogo">
             <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
         </div>
         <div class="hrAfterLogo">
@@ -18,14 +18,28 @@
             <h1>Home</h1>
         </div>
         <div class="titleDiv">
-
+            <h1>My Courses</h1>
         </div>
         <div class="hrAfterNav">
             <hr/>
         </div>
     </div>
     <div class="contentHomePage">
-        
+        <div class="joinButtonDiv">
+            <button class="joinCourseButton">Join Course</button>
+        </div>
+        <div class="hrAfterJoinButton">
+            <hr/>
+        </div>
+        {%if professor%}
+            <div class="noContentDiv">
+                <h6 class="noContent">Looks like you haven't signed up for any classes yet, click on "Join Course" to get started.</h6>
+            </div>
+        {%elif student%}
+            <div class="noContentDiv">
+                <h6>Looks like you haven't enrolled in any courses yet, click on "Join Course" to get started.</h6>
+            </div>
+        {%endif%}
     </div>
 </div>
 {%endblock%}

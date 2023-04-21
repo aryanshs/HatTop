@@ -65,13 +65,13 @@ def profStudent():
             userData['professor'] = True
             # update it in database
             hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
-            return render_template('homePage.html')
+            return render_template('homePage.html', professor=True)
         if 'student' in data:
             userData = hatTop.find_one({'username': session.get('username')})
             userData['student'] = True
             # update it in database
             hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
-            return render_template('homePage.html')
+            return render_template('homePage.html', student=True)
 
     return render_template('professorOrStudent.html')
 
