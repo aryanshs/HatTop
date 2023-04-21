@@ -66,6 +66,8 @@ body {
 .containerSignup {
   text-align: center;
   margin-top: 12%;
+  display: grid;
+  grid-template-columns: 1fr;
 }
 
 .signupForm {
@@ -124,4 +126,5 @@ body {
 .schoolDropdownSignup {
   margin: 2%;
 }
+
 /*SignUP Page CSS END*/
