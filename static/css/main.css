@@ -128,3 +128,45 @@ body {
 }
 
 /*SignUP Page CSS END*/
+
+/*ProfOrStudent CSS SART*/
+.containerProfStudent {
+  margin: auto;
+}
+.contentProfStudent {
+  text-align: center;
+
+  margin: 15%;
+  display: grid;
+  grid-template-columns: 0.5fr 0.5fr;
+}
+.titleProfStudent {
+  grid-column: 1/-1;
+  margin-bottom: 5%;
+}
+
+.profButton {
+  background-color: red;
+  color: white;
+  padding: 5%;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  opacity: 1;
+}
+
+.studButton {
+  background-color: #2b5ad1;
+  color: white;
+  padding: 5%;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  opacity: 1;
+}
+.profButton:hover {
+  opacity: 0.5;
+}
+.studButton:hover {
+  opacity: 0.5;
+}

@@ -1,0 +1,9 @@
+.containerHomePage {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr);
+}
+.navDiv {
+  grid-column: 1/-1;
+  grid-row: 1/2;
+}

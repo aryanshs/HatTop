@@ -1,11 +1,31 @@
 {%extends 'base.html'%}
 
 {%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
 <title>Home</title>
 {%endblock%}
 
 {%block body%}
 <div class="containerHomePage">
-    <h1>Home</h1>
+    <div class="navDiv">
+        <div class="logo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        </div>
+        <div class="hrAfterLogo">
+            <hr/>
+        </div>
+        <div class="pageDiv">
+            <h1>Home</h1>
+        </div>
+        <div class="titleDiv">
+
+        </div>
+        <div class="hrAfterNav">
+            <hr/>
+        </div>
+    </div>
+    <div class="contentHomePage">
+        
+    </div>
 </div>
 {%endblock%}

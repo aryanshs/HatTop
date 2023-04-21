@@ -3,13 +3,14 @@ from crypt import methods
 from distutils.log import error
 from http import client
 from urllib import request
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, session
 from pymongo import MongoClient
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 import re
 
 app = Flask(__name__)
+app.secret_key = 'cse312'
 
 client = MongoClient('localhost', 27017)
 
@@ -43,7 +44,7 @@ def signUp():
             return render_template('signup.html', name=data['name'], username=data['username'], email=data['email'], error=errorMessage)
         else:
             hatTop.insert_one(data)
-            return render_template('homePage.html')
+            return render_template('professorOrStudent.html')
 
     return render_template('signup.html')
 
@@ -51,6 +52,28 @@ def signUp():
 @app.route('/home')
 def homePage():
     return render_template('homePage.html')
+
+
+@app.route('/professororstudent', methods=['GET', 'POST'])
+def profStudent():
+    if request.method == "POST":
+        data = request.form.to_dict()
+        print(data)
+        print(session.get('username'))
+        if 'professor' in data:
+            userData = hatTop.find_one({'username': session.get('username')})
+            userData['professor'] = True
+            # update it in database
+            hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
+            return render_template('homePage.html')
+        if 'student' in data:
+            userData = hatTop.find_one({'username': session.get('username')})
+            userData['student'] = True
+            # update it in database
+            hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
+            return render_template('homePage.html')
+
+    return render_template('professorOrStudent.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -62,6 +85,8 @@ def loginPhase2():
             schoolData = data['schoolData']
         print(data)
         userData = hatTop.find_one({'username': data['username']})
+        # this can be called from anywhere
+        session['username'] = data['username']
         if userData == None:
             error_message = "We don't have an account with that username, please create an account."
             return render_template('loginPhase2.html', AcctError=error_message)
@@ -73,7 +98,7 @@ def loginPhase2():
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
-                return render_template('homePage.html')
+                return render_template('professorOrStudent.html')
 
         print(userData)
     return render_template('loginPhase2.html')

@@ -1,0 +1,28 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<title>HatTop</title>
+<script>
+    function studentPressedHandler(){
+        
+    }
+</script>
+{%endblock%}
+
+{%block body%}
+<div class="containerProfStudent">
+    <form action="/professororstudent" method="POST">
+        <div class="contentProfStudent">
+            <div class="titleProfStudent">
+                <h3>Tell us more about you :)</h3>
+            </div>
+            <div class="professorDiv">
+                <button class="profButton" name="professor">I am a professor!</button>
+            </div>
+            <div class="studentDiv">
+                <button class="studButton" name="student" onclick="studentPressedHandler()">I am a student!</button>
+            </div>
+        </div>
+    </form>
+</div>
+{%endblock%}
