@@ -2,6 +2,7 @@
 
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/addcourses.css')}}">
 <title>Adding Courses</title>
 {%endblock%}
 
@@ -26,6 +27,27 @@
             <div class="hrAfterNav">
                 <hr/>
             </div>
+        </div>
+        <div class="contentAddCoursesPage">
+            <div class="backButtonDiv" onclick=location.href="{{url_for('homePage')}}">
+                <img src="{{url_for('static', filename='images/back.png')}}" alt="Logo"/>
+            </div>
+            <div class="hrAfterBackButton">
+                <hr/>
+            </div>
+            {% if professor%}
+                <form action="/addcourses" method="POST">
+                    <div class="">
+
+                    </div>
+                </form>
+            {% elif student%}
+                <form action="/addcourses" method="POST">
+                    <div>
+
+                    </div>
+                </form>
+            {%endif%}
         </div>
     </div>
 {%endblock%}
