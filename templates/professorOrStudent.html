@@ -1,0 +1,26 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<title>HatTop</title>
+{%endblock%}
+
+{%block body%}
+<div class="containerProfStudent">
+    <form action="/professororstudent" method="POST">
+        <div class="contentProfStudent">
+            <div class="prostudLogo">
+                <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+            </div>
+            <div class="titleProfStudent">
+                <h3>Tell us more about you :)</h3>
+            </div>
+            <div class="professorDiv">
+                <button class="profButton" name="professor">I am a professor!</button>
+            </div>
+            <div class="studentDiv">
+                <button class="studButton" name="student">I am a student!</button>
+            </div>
+        </div>
+    </form>
+</div>
+{%endblock%}

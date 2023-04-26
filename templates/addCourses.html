@@ -1,0 +1,87 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/addcourses.css')}}">
+<title>Adding Courses</title>
+{%endblock%}
+
+{%block body%}
+    <div class="containerAddingCourses">
+        <div class="navDiv">
+            <div class="homeLogo">
+                <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+            </div>
+            <div class="hrAfterLogo">
+                <hr/>
+            </div>
+            <div class="pageDiv">
+                <h1 class="pageName">Home</h1>
+            </div>
+            <div class="titleDiv">
+                <h1>Add Courses</h1>
+            </div>
+            <div class="profileIconDiv">
+                <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+            </div>
+            <div class="hrAfterNav">
+                <hr/>
+            </div>
+        </div>
+        <div class="contentAddCoursesPage">
+            <div class="backButtonDiv" onclick=location.href="{{url_for('homePage')}}">
+                <img src="{{url_for('static', filename='images/back.png')}}" alt="Logo"/>
+            </div>
+            <div class="hrAfterBackButton">
+                <hr/>
+            </div>
+            {% if professor%}
+                <!-- <form action="/addcourses" method="POST"> -->
+                    <div class="addCoursesFormDiv">
+                        <div class="coursePreNumDiv">
+                            <div class="labelDiv">
+                                <label for="coursePreNum">Course Prefix and Number: </label>
+                            </div>
+                            <div class="inputDiv">
+                                <input id="coursePreNum" placeholder="CSE 312"/>
+                            </div>
+                        </div>
+                        <div class="courseNameDiv">
+                            <div class="labelDiv">
+                                <label for="courseName">Course Name: </label>
+                            </div>
+                            <div class="inputDiv">
+                                <input id="courseName" placeholder="Web Applications"/>
+                            </div>
+                        </div>
+                        <div class="instructorNameDiv">
+                            <div class="labelDiv">
+                                <label for="instructorName">Instructor's Name: </label>
+                            </div>
+                            <div class="inputDiv">
+                                <input id="instructorName" placeholder="Jesse Hartloff"/>
+                            </div>
+                        </div>
+                        <div class="classCodeDiv">
+                            <div class="labelDiv">
+                                <label for="instructorName">Class Code: </label>
+                            </div>
+                            <div class="inputDiv">
+                                <input id="classCode" placeholder="123456"/>
+                            </div>
+                        </div>
+                        <div class="addButtonDiv">
+                            <button class="addButton">Add Course</button>
+                        </div>
+                    </div>
+                <!-- </form> -->
+            {% elif student%}
+                <form action="/addcourses" method="POST">
+                    <div>
+
+                    </div>
+                </form>
+            {%endif%}
+        </div>
+    </div>
+{%endblock%}
