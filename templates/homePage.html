@@ -42,7 +42,29 @@
             <div class="noContentDiv">
                 <h6>Looks like you haven't enrolled in any courses yet, click on "Join Course" to get started.</h6>
             </div>
+        {%elif professor%}
+            {% for classData in classesData%}
+                <div class="contentDiv">
+                    <div class="coursePrefixHomeDiv">
+                        <p>{{classData.coursePrefix}}</p>
+                    </div>
+                    <div class="courseNameHomeDiv">
+                        <h6>{{classData.courseName}}</h6>
+                    </div>
+                    <div class="instructorNameHomeDiv">
+                        <p>{{classData.instructorName}}</p>
+                    </div>
+                    <div class="joinCodeHomeDiv">
+                        <p>{{classData.joinCode}}</p>
+                    </div>
+                    <div class="enterHomeDiv">
+                        <button>Enter</button>
+                    </div>
+                </div>
+            {%endfor%}
+        
         {%endif%}
+        
     </div>
 </div>
 {%endblock%}
