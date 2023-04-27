@@ -159,7 +159,7 @@ def addCourses():
             # the value for key 'students' is also a dictionary, which will contain username of the
             # student who is enrolled in the professor's class and the values could contain their grades
             # and any other stuff that we need
-            data["students"] = {}
+            data["students"] = [{}]
 
             # here we created newUserData dict, which will contain professor's username and their class as a list in professorsAndStudents
             newUserData["username"] = session.get('username')
