@@ -81,6 +81,11 @@
                         <input type="text" name = "search-bar" placeholder="search">
                         <button id = "search-bar-button">search</button>
                     </div>
+                    <div>
+                        {% for course in courses %}
+                            {% include 'courseitem.html' %}
+                        {% endfor %}
+                    </div>
                 </form>
             {%endif%}
         </div>

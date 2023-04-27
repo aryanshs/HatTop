@@ -144,12 +144,15 @@ def addCourses():
         return render_template('addCourses.html', professor=True)
     if 'student' in userData:
         q = request.args.get('search-bar')
-        if q:
-            courses = hatTop.find({'courses': {'$regex': q, '$options': 'i'}})
-        return render_template('addCourses.html', student=True)
+        course = load_courses_from_db(q)
+        return render_template('addCourses.html', student=True, courses = course)
 
 # checking if user is logged in
 
+def load_courses_from_db(query):
+    if q:
+        courses = hatTop.find({'courses': {'$regex': q, '$options': 'i'}})
+    return list(courses)
 
 def userLoggedIn():
     username = session.get('username', None)
