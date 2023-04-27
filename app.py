@@ -155,10 +155,14 @@ def userLoggedIn():
         return False
     
 # Create a question
-@app.route('/createquestion')
+@app.route('/createquestion', methods=['GET', 'POST'])
 def createquestion():
-    # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
-    userData = hatTop.find_one({'username': session.get('username')})
+    if request.method == "POST":
+        data = request.form.to_dict()
+
+
+
+    return render_template('createQuestion.html')
 
 
 if __name__ == "__main__":
