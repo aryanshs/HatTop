@@ -146,8 +146,6 @@ def addCourses():
         return render_template('addCourses.html', student=True)
 
 # checking if user is logged in
-
-
 def userLoggedIn():
     username = session.get('username', None)
 
@@ -155,6 +153,12 @@ def userLoggedIn():
         return True
     else:
         return False
+    
+# Create a question
+@app.route('/createquestion')
+def createquestion():
+    # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
+    userData = hatTop.find_one({'username': session.get('username')})
 
 
 if __name__ == "__main__":
