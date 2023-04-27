@@ -134,7 +134,7 @@ def homePage():
 
 
 # Adding Courses Page
-@app.route('/addcourses')
+@app.route('/addcourses',methods = ["GET","POST"])
 def addCourses():
 
     # looking into the database to check if the user is a professor or a student
@@ -143,6 +143,9 @@ def addCourses():
     if 'professor' in userData:
         return render_template('addCourses.html', professor=True)
     if 'student' in userData:
+        q = request.args.get('search-bar')
+        if q:
+            courses = hatTop.find({'courses': {'$regex': q, '$options': 'i'}})
         return render_template('addCourses.html', student=True)
 
 # checking if user is logged in

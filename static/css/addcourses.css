@@ -93,3 +93,6 @@
   opacity: 0.5;
 }
 /*Add course content END*/
+#searchbar{
+  display: grid;
+}

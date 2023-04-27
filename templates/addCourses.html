@@ -77,8 +77,9 @@
                 <!-- </form> -->
             {% elif student%}
                 <form action="/addcourses" method="POST">
-                    <div>
-
+                    <div id="searchbar">
+                        <input type="text" name = "search-bar" placeholder="search">
+                        <button id = "search-bar-button">search</button>
                     </div>
                 </form>
             {%endif%}
