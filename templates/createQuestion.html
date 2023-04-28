@@ -2,7 +2,7 @@
 
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
-<title><a href='{{url_for('addCourses')}}'>Home</a></title>
+<title>Home</title>
 {%endblock%}
 
 {%block body%}
@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="CreateQuestionForm">
-        <form method="POST" action="/signup">
+        <form method="POST" action="/createquestion">
             <div class="signupForm">
                     <!-- Question Text Fields -->
                     <input type="text" id="question1" name="question1" placeholder="Question 1" required/><br>

@@ -159,6 +159,8 @@ def userLoggedIn():
 def createquestion():
     if request.method == "POST":
         data = request.form.to_dict()
+        print(data)
+        return render_template('activeQuestion.html')
 
 
 
