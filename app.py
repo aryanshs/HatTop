@@ -143,16 +143,37 @@ def addCourses():
     if 'professor' in userData:
         return render_template('addCourses.html', professor=True)
     if 'student' in userData:
-        q = request.args.get('search-bar')
-        course = load_courses_from_db(q)
+        course = ''
+        courseCode = None
+        data = request.form.to_dict()  # converting the post data into a dictionary
+        print(data)
+        if("query" in data):
+            query = data["query"]
+            course = load_courses_from_db(query,"prefix")
+            print(course)
+        if("courseCode" in data):
+            query = data["courseCode"]
+            enroll_course = load_courses_from_db(query,"code")
+
+            print(enroll_course[0]['coursePrefix'])
+            print(data['coursePrefix'])
+            if(enroll_course[0]['coursePrefix'] == data['coursePrefix']):
+                hatTop.update_one({'courseCode': query}, { '$push' : { 'students': session.get('username')}})
+                hatTop.update_one({'username': session.get('username')},{ '$push' : { 'courses': data['courseCode']}})
+            else:
+                print("error")
+
+
         return render_template('addCourses.html', student=True, courses = course)
 
-# checking if user is logged in
-
-def load_courses_from_db(query):
-    if q:
-        courses = hatTop.find({'courses': {'$regex': q, '$options': 'i'}})
-    return list(courses)
+def load_courses_from_db(query,method):
+    if method == "prefix":
+        courses = hatTop.find({'coursePrefix': {'$regex': query, '$options': 'i'}})
+        return list(courses)
+    elif method == "code":
+        courses = hatTop.find({'courseCode': query})
+        return list(courses)
+    
 
 def userLoggedIn():
     username = session.get('username', None)

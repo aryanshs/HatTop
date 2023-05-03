@@ -1,3 +1,8 @@
-<div>
-    <p>{{course['name']}}</p>
+<div class="course-item">
+    <form action = "/addcourses" method="Post">
+        <label>{{course['coursePrefix']}}</label>
+        <input name ="coursePrefix" hidden value= "{{course['coursePrefix']}}">
+        <input type="text" name= "courseCode" placeholder="Course Code">
+        <input type="submit" value="Enroll">
+    </form>
 </div>

@@ -43,6 +43,7 @@
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(5, minmax(5%, 20%));
 }
+
 .addCoursesFormDiv div {
   margin-bottom: 8%;
 }
@@ -94,5 +95,14 @@
 }
 /*Add course content END*/
 #searchbar{
-  display: grid;
+    grid-column: 2/5;
+    background-color: #d8d8d8;
+    text-align: center;
+    margin-top: 4%;
+    border-radius: 8px;
+    padding-top: 3%;
+    display: grid;
+}
+.course-item{
+  margin: 3%;
 }
