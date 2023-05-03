@@ -2,6 +2,31 @@
 
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<!-- <script src="/socket.io/socket.io.js"></script> -->
+<script>
+    window.addEventListener('load', function () {
+    
+    const socket = io();
+    socket.connect('http://127.0.0.1:5000');
+
+    const form = document.getElementById('form');
+    console.log(form)
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const q1 = document.getElementById('question1').value;
+        const q2 = document.getElementById('question2').value;
+        const q3 = document.getElementById('question3').value;
+        const q4 = document.getElementById('question4').value;
+        const q5 = document.getElementById('question5').value;
+        const correctQ = document.querySelector('input[name="correctQuestion"]:checked').value;
+        socket.emit('submit', {q1,q2,q3,q4,q5,correctQ});
+    });
+    socket.on('response', (data) => {
+        alert(data.message);
+    });
+    });
+  </script>
 <title>Home</title>
 {%endblock%}
 
@@ -28,7 +53,7 @@
         </div>
     </div>
     <div class="CreateQuestionForm">
-        <form method="POST" action="/createquestion">
+        <form id='form'>
             <div class="signupForm">
                     <!-- Question Text Fields -->
                     <input type="text" id="question1" name="question1" placeholder="Question 1" required/><br>
@@ -39,7 +64,9 @@
                     <!-- Buttons to select which question is correct -->
                     <p>Which Question is correct?</p>
                     <label for="q1">question1</label>
-                    <input type="radio" id="q1" name="correctQuestion" value="question1"><br>
+                    <input type="radio" id="q1" name="correctQuestion" value="question1" required="required" 
+                    oninvalid="this.setCustomValidity('Please select the correct question')"
+                    oninput="this.setCustomValidity('')"><br>
                     <label for="q2">question2</label>
                     <input type="radio" id="q2" name="correctQuestion" value="question2"><br>
                     <label for="q3">question3</label>
@@ -50,7 +77,7 @@
                     <input type="radio" id="q5" name="correctQuestion" value="question5"><br>
 
                     <br>
-                    <input type="submit" value="Start Question">
+                    <button type="submit">Start Question</button>
             </div> 
     </div>
 </div>

@@ -3,6 +3,7 @@ from distutils.log import error
 from http import client
 from urllib import request
 from flask import Flask, render_template, url_for, request, session, redirect
+from flask_socketio import SocketIO, send
 from pymongo import MongoClient
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
@@ -10,7 +11,7 @@ import re
 
 app = Flask(__name__)
 app.secret_key = 'cse312'
-
+socket = SocketIO(app, async_mode="gevent") #creating socket
 client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
@@ -155,17 +156,28 @@ def userLoggedIn():
         return False
     
 # Create a question
+#Send the completed form data to socket so it can start the question
 @app.route('/createquestion', methods=['GET', 'POST'])
 def createquestion():
     if request.method == "POST":
         data = request.form.to_dict()
         print(data)
-        return render_template('activeQuestion.html')
-
-
-
+        return render_template('createQuestion.html')
+    
     return render_template('createQuestion.html')
 
 
+@socket.on('submit')
+def postQuestion(questions):
+    question1 = questions['q1']
+    question2 = questions['q2']
+    question3 = questions['q3']
+    question4 = questions['q4']
+    question5 = questions['q5']
+    correctQ = questions['correctQ']
+    print(questions)
+    socket.emit('response', {'message': 'Form submission successful!'})
+
+
 if __name__ == "__main__":
-    app.run()
+    socket.run(app)
