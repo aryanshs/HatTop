@@ -1,3 +1,4 @@
+from asyncio import constants
 from contextlib import redirect_stderr
 from distutils.log import error
 from http import client
@@ -13,8 +14,14 @@ app.secret_key = 'cse312'
 
 client = MongoClient('localhost', 27017)
 
-db = client.flask_db  # creating a flask databse
-hatTop = db.hatTop  # creating a collection in the flask_db database
+# creating a flask databse
+db = client.flask_db
+
+# creating a collection for user data in the flask_db database
+hatTop = db.hatTop
+
+# creating a collection for professor and students in flask_db database
+professorAndStudents = db.professorAndStudents
 
 
 # default Page
@@ -125,17 +132,50 @@ def homePage():
     # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
     userData = hatTop.find_one({'username': session.get('username')})
     if 'professor' in userData:
-        if 'noContent' in userData:
+        if userData['noContent'] == True:
             return render_template('homePage.html', professor=True, noContent=True)
+        else:
+            classData = professorAndStudents.find_one(
+                {'username': session.get('username')})
+
+            return render_template('homePage.html', professor=True, noContent=False, classesData=classData["class"])
 
     if 'student' in userData:
-        if 'noContent' in userData:
+        if userData['noContent'] == True:
             return render_template('homePage.html', student=True, noContent=True)
 
 
 # Adding Courses Page
-@app.route('/addcourses',methods = ["GET","POST"])
+@app.route('/addcourses', methods=['GET', 'POST'])
 def addCourses():
+
+    if (request.method == "POST"):
+        data = request.form.to_dict()  # convertint data from post into a dictionary
+        # finding user data based on current user's username
+        userData = hatTop.find_one({'username': session.get('username')})
+        newUserData = {}
+        if 'professor' in userData:
+            # creating a students key in the data for professor to later add students,
+            # the value for key 'students' is also a dictionary, which will contain username of the
+            # student who is enrolled in the professor's class and the values could contain their grades
+            # and any other stuff that we need
+            data["students"] = [{}]
+
+            # here we created newUserData dict, which will contain professor's username and their class as a list in professorsAndStudents
+            newUserData["username"] = session.get('username')
+
+            # class data as a list
+            newUserData["class"] = [data]
+
+            # inserting the professor and student data to our collection (professorAndStudents)
+            professorAndStudents.insert_one(newUserData)
+
+            # setting noContent to false for userData (hatTop collection) , signifying the user has enrolled or
+            # signed up for atleast one class
+            userData["noContent"] = False
+            hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
+
+            return render_template('addCourses.html', professor=True, classAdded=True)
 
     # looking into the database to check if the user is a professor or a student
     userData = hatTop.find_one({'username': session.get('username')})
