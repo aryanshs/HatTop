@@ -4,29 +4,6 @@
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 <!-- <script src="/socket.io/socket.io.js"></script> -->
-<script>
-    window.addEventListener('load', function () {
-    
-    const socket = io();
-    socket.connect('http://127.0.0.1:5000');
-
-    const form = document.getElementById('form');
-    console.log(form)
-    form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const q1 = document.getElementById('question1').value;
-        const q2 = document.getElementById('question2').value;
-        const q3 = document.getElementById('question3').value;
-        const q4 = document.getElementById('question4').value;
-        const q5 = document.getElementById('question5').value;
-        const correctQ = document.querySelector('input[name="correctQuestion"]:checked').value;
-        socket.emit('submit', {q1,q2,q3,q4,q5,correctQ});
-    });
-    socket.on('response', (data) => {
-        alert(data.message);
-    });
-    });
-  </script>
 <title>Home</title>
 {%endblock%}
 
@@ -43,7 +20,7 @@
             <h1 class="pageName">Home</h1>
         </div>
         <div class="titleDiv">
-            <h1>CSE 312</h1>
+            <h1>{{courseName}}</h1>
         </div>
         <div class="profileIconDiv">
             <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
@@ -53,28 +30,27 @@
         </div>
     </div>
     <div class="CreateQuestionForm">
-        <form id='form'>
+        <form id='form' method="POST" action="/createquestion">
             <div class="signupForm">
                     <!-- Question Text Fields -->
-                    <input type="text" id="question1" name="question1" placeholder="Question 1" required/><br>
-                    <input type="text" id="question2" name="question2" placeholder="Question 2" required/><br>
-                    <input type="text" id="question3" name="question3" placeholder="Question 3"/><br>
-                    <input type="text" id="question4" name="question4" placeholder="Question 4"/><br>
-                    <input type="text" id="question5" name="question5" placeholder="Question 5"/><br>
+                    <input type="text" id="question" name="question" placeholder="Question" required/><br>
+                    <input type="text" id="answer1" name="answer1" placeholder="Answer 1" required/><br>
+                    <input type="text" id="answer2" name="answer2" placeholder="Answer 2" required/><br>
+                    <input type="text" id="answer3" name="answer3" placeholder="Answer 3"/><br>
+                    <input type="text" id="answer4" name="answer3" placeholder="Answer 4"/><br>
+                    <input type="text" id="answer5" name="answer5" placeholder="Answer 5"/><br>
                     <!-- Buttons to select which question is correct -->
                     <p>Which Question is correct?</p>
-                    <label for="q1">question1</label>
-                    <input type="radio" id="q1" name="correctQuestion" value="question1" required="required" 
-                    oninvalid="this.setCustomValidity('Please select the correct question')"
-                    oninput="this.setCustomValidity('')"><br>
-                    <label for="q2">question2</label>
-                    <input type="radio" id="q2" name="correctQuestion" value="question2"><br>
-                    <label for="q3">question3</label>
-                    <input type="radio" id="q3" name="correctQuestion" value="question3"><br>
-                    <label for="q4">question4</label>
-                    <input type="radio" id="q4" name="correctQuestion" value="question4"><br>
-                    <label for="q5">question5</label>
-                    <input type="radio" id="q5" name="correctQuestion" value="question5"><br>
+                    <label for="a1">answer1</label>
+                    <input type="radio" id="a1" name="correctAnswer" value="answer1"><br>
+                    <label for="a2">answer2</label>
+                    <input type="radio" id="a2" name="correctAnswer" value="answer2"><br>
+                    <label for="a3">answer3</label>
+                    <input type="radio" id="a3" name="correctAnswer" value="answer3"><br>
+                    <label for="a4">answer4</label>
+                    <input type="radio" id="a4" name="correctAnswer" value="answer4"><br>
+                    <label for="a5">answer5</label>
+                    <input type="radio" id="a5" name="correctAnswer" value="answer5"><br>
 
                     <br>
                     <button type="submit">Start Question</button>

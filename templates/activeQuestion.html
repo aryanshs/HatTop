@@ -1,0 +1,98 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<!-- <script src="/socket.io/socket.io.js"></script> -->
+<script>
+    window.addEventListener('load', function () {
+    
+    const socket = io();
+    socket.connect('http://127.0.0.1:5000');
+    socket.emit('startQuestion');
+    });
+
+    socket.on('response', (data) => {
+        alert(data.message);
+    });
+  </script>
+<title>Home</title>
+{%endblock%}
+
+{%block body%}
+<div class="containerHomePage">
+    <div class="navDiv">
+        <div class="homeLogo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        </div>
+        <div class="hrAfterLogo">
+            <hr/>
+        </div>
+        <div class="pageDiv">
+            <h1 class="pageName">Home</h1>
+        </div>
+        <div class="titleDiv">
+            <h1>CSE 312</h1>
+        </div>
+        <div class="profileIconDiv">
+            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+        </div>
+        <div class="hrAfterNav">
+            <hr/>
+        </div>
+    </div>
+    <div class="activeQuestion">
+        <!-- if it's a prof then don't make it a form, just text -->
+        {%if professor%}
+            <h1>{{question}}</h1><br>
+            {%if answer1%}
+            <h1>{{answer1}}</h1><br>
+            {%endif%} 
+            {%if answer2%}
+            <h1>{{answer2}}</h1><br>
+            {%endif%} 
+            {%if answer3%}
+            <h1>{{answer3}}</h1><br>
+            {%endif%} 
+            {%if answer4%}
+            <h1>{{answer4}}</h1><br>
+            {%endif%} 
+            {%if answer5%}
+            <h1>{{answer5}}</h1><br>
+            {%endif%}
+        {%endif%} 
+
+        <!-- if it's a student then make it a form -->
+        {%if student%}
+        <h1>{{question}}</h1><br>
+        {%if answer1%}
+        <label for="q1">{{answer1}}</label>
+        <input type="radio" id="q1" name="question1" value="question1"><br>
+        {%endif%}
+
+        {%if answer2%}
+        <label for="q2">{{answer2}}</label>
+        <input type="radio" id="q2" name="question2" value="question2"><br>
+        {%endif%}
+        
+        {%if answer3%}
+        <label for="q3">{{answer3}}</label>
+        <input type="radio" id="q3" name="question3" value="question3"><br>
+        {%endif%}
+
+        {%if answer4%}
+        <label for="q4">{{answer4}}</label>
+        <input type="radio" id="q4" name="question4" value="question4"><br>
+        {%endif%}
+        
+        {%if answer5%}
+        <label for="q5">{{answer5}}</label>
+        <input type="radio" id="q5" name="question5" value="question5"><br>
+        {%endif%}
+        
+
+        <br>
+        <button type="submit">Start Question</button>
+        {%endif%}
+    </div>
+{%endblock%}

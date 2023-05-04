@@ -7,6 +7,7 @@ from flask_socketio import SocketIO, send
 from pymongo import MongoClient
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
+import html
 import re
 
 app = Flask(__name__)
@@ -15,7 +16,8 @@ socket = SocketIO(app, async_mode="gevent") #creating socket
 client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
-hatTop = db.hatTop  # creating a collection in the flask_db database
+hatTop = db.hatTop  # collection to store user information
+gradeBook = db.hatTop  # collection to store gradebook for each course
 
 
 # default Page
@@ -159,25 +161,40 @@ def userLoggedIn():
 #Send the completed form data to socket so it can start the question
 @app.route('/createquestion', methods=['GET', 'POST'])
 def createquestion():
+    #the following variables are hardcoded for testing purposes
+    #once the dependent features are implemented then it will be removed
+    professor = True #this will be derived from userData
+    student = False #this will be derived from userData
+    studentName = 'Zack' #this will be derived from session
+    course = 'CSE 42069' #this will be derived from request data
     if request.method == "POST":
-        data = request.form.to_dict()
-        print(data)
-        return render_template('createQuestion.html')
+
+        question = request.form.to_dict()
+        #userData = hatTop.find_one({'username': session.get('username')})
+
+        #add question to gradebook
+        gradeBook.insert_one({'course':course, 'question':html.escape(question['question']), 'student':studentName, 'score':0, 'correctAnswer':html.escape(question['correctA'])})
+
+        #if it's a professor then don't render as form, just as text
+        if professor:
+            return render_template('activeQuestion.html',professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+        
+        #if it's a student then render as form
+        if student:
+            return render_template('activeQuestion.html',student=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
     
-    return render_template('createQuestion.html')
+    #This should check if it's a student, if so then redirect to safe page
+    #Students do not have authority to create questions
+    if student:
+        return render_template('homePage.html', student=True, noContent=True)
+    
+    if professor:
+        return render_template('createQuestion.html',courseName=course)
 
 
-@socket.on('submit')
+@socket.on('startQuestion')
 def postQuestion(questions):
-    question1 = questions['q1']
-    question2 = questions['q2']
-    question3 = questions['q3']
-    question4 = questions['q4']
-    question5 = questions['q5']
-    correctQ = questions['correctQ']
-    print(questions)
-    socket.emit('response', {'message': 'Form submission successful!'})
-
+    socket.emit('numberOfSubmissions')
 
 if __name__ == "__main__":
     socket.run(app)
