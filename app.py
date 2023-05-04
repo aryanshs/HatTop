@@ -220,7 +220,7 @@ def createquestion():
     
     if professor:
         return render_template('createQuestion.html',courseName=course)
-
+from bson.objectid import ObjectId
 #receives completed createquestion forms
 #uses that data to
 @app.route('/activequestion', methods=['GET', 'POST'])
@@ -243,16 +243,18 @@ def activequestion():
                 answers.append(question[key])
 
         #add question to questions collection
-        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':html.escape(question['correctAnswer']), 'isActive':1})
+        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][:6]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if professor:
             return render_template('activeQuestion.html',courseName=course, questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
         
     #if it's a get then use question id to get information from db
-    question = request.form.to_dict()
-    qid = question['id']
-    q = questions.find_one({'_id': qid})
+    #THIS CONVERTS TO OBJECT FOR TESTING
+    #DON"T FORGET TO REMOVE
+    qid = request.args.get('id')
+    obj = ObjectId(qid)
+    q = questions.find_one({'_id': obj})
     
     #get the answers
     ans1 = q['answers'][0]
@@ -267,7 +269,7 @@ def activequestion():
     if(len(q['answers']) >= 5):
         ans5 = q['answers'][4]
 
-    return render_template('activeQuestion.html',courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    return render_template('activeQuestion.html',questionID=obj,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
     
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened
@@ -283,10 +285,13 @@ def postQuestion(questionID):
 #2. check if answer is correct
 #3. Upsert the submission
 #4 Send the updated number of submissions to client
-@socket.on('Submission')
-def handleSubmission(questionID, answer):
+@socket.on('submission')
+def handleSubmission(answerInfo):
     #get question by id
-    question = questions.find_one({'_ID':questionID})
+    answer = answerInfo['answer']
+    questionID = answerInfo['questionID']
+    print('submission received')
+    question = questions.find_one({'_id':ObjectId(questionID)})
 
     #If question is inactive then tell client
     #This should never actually trigger, as the moment a question closes
@@ -302,18 +307,21 @@ def handleSubmission(questionID, answer):
 
     #perform a upsert
     data = {'course':question['course'], 'answer':answer, 'score':score, 'question':question['question']}
-    gradeBook.update_one({'qid':questionID, 'student':session.get('username')}, data, upsert=True)
+    gradeBook.update_one({'qid':questionID, 'student':session.get('username')}, {"$set": data}, upsert=True)
     
     #get the number of subissions for question
     count = gradeBook.count_documents({'qid':questionID})
-    socket.emit('newSubmission', count)
-    print('Question: ', questionID , ' Started')
+    socket.emit('newSubmission', {'qid':questionID, 'count':count})
+    print('Student: ', session.get('username'), ' submitted the answer: ', answer, ' for question: ', question['question'])
 
 #upon ending a question:
 #1. Set the question to inactive in DB
+#2. Send message to all sockets that question has ended
 #2. Display the final results
 @socket.on('endQuestion')
-def stopQuestion():
+def stopQuestion(questionID):
+    gradeBook.update_one({'qid':questionID}, {'isActive':0})
+    socket.emit('questionClosed', questionID)
     print('Question ended')
 
 if __name__ == "__main__":
