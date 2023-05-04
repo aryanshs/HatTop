@@ -5,18 +5,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 <!-- <script src="/socket.io/socket.io.js"></script> -->
 <script>
-    window.addEventListener('load', function () {
-    
     const socket = io();
     socket.connect('http://127.0.0.1:5000');
-    socket.emit('startQuestion', '{{questionID}}');
+    window.addEventListener('load', function () {
+        socket.emit('startQuestion', '{{questionID}}');
 
-    // When prof ends question, message the backend
-    const button = document.getElementById('endButton');
-        button.addEventListener('submit', (event) => {
-            event.preventDefault();
-            socket.emit('endQuestion');
-        });
+        // When prof ends question, message the backend
+        const button = document.getElementById('endButton');
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                socket.emit('endQuestion');
+            });
     });
 
     // When a new submission happens, increase the counter
@@ -70,7 +69,7 @@
             <h1>{{answer5}}</h1><br>
             {%endif%}
             <div id="submissionCounter"></div>
-            <button id="endButton" type="submit">End Question</button>
+            <button id="endButton" type="button">End Question</button>
             
         {%endif%} 
 

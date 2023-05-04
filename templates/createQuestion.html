@@ -2,8 +2,6 @@
 
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
-<!-- <script src="/socket.io/socket.io.js"></script> -->
 <title>Home</title>
 {%endblock%}
 
@@ -30,7 +28,7 @@
         </div>
     </div>
     <div class="CreateQuestionForm">
-        <form id='form' method="POST" action="/createquestion">
+        <form id='form' method="POST" action="/activequestion">
             <div class="signupForm">
                     <!-- Question Text Fields -->
                     <input type="text" id="question" name="question" placeholder="Question" required/><br>

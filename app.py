@@ -20,7 +20,7 @@ db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
 gradeBook = db.gradeBook  #collection to store gradebook for each course
 questions = db.questions #collection to store all questions
-professorAndStudents = db.professorAndStudents #collection for professor and students in flask_db database
+professorAndStudents = db.professorAndStudents #collection for classes
 
 
 # default Page
@@ -146,11 +146,6 @@ def homePage():
                         {'courseCode': i}):
                     classData2.append(j)
                 index += 1
-
-            print("this is all classes")
-            print(classData2)
-            print(len(classData2))
-
             return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
 
     if 'student' in userData:
@@ -212,10 +207,24 @@ def userLoggedIn():
     else:
         return False
     
-# Create a question
-#Send the completed form data to socket so it can start the question
-@app.route('/createquestion', methods=['GET', 'POST'])
+#Create a question form
+@app.route('/createquestion', methods=['GET'])
 def createquestion():
+    professor = True
+    student = False
+    course='course 42069'
+    #This should check if it's a student, if so then redirect to safe page
+    #Students do not have authority to create questions
+    if student:
+        return render_template('homePage.html', student=True, noContent=True)
+    
+    if professor:
+        return render_template('createQuestion.html',courseName=course)
+
+#receives completed createquestion forms
+#uses that data to
+@app.route('/activequestion', methods=['GET', 'POST'])
+def activequestion():
     #the following variables are hardcoded for testing purposes
     #once the dependent features are implemented then it will be removed
     professor = True #this will be derived from userData
@@ -226,30 +235,40 @@ def createquestion():
     if request.method == "POST":
 
         question = request.form.to_dict()
+
+        #put all the answers options into list
         answers = []
         for key in question:
-            if key[:6] == 'answer':
+            if key[:6] == 'answer' and not (question[key] == ""):
                 answers.append(question[key])
 
-        #add question to gradebook
+        #add question to questions collection
         q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':html.escape(question['correctAnswer']), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if professor:
             return render_template('activeQuestion.html',courseName=course, questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
         
-        #if it's a student then render as form
-        if student:
-            return render_template('activeQuestion.html',courseName=course, student=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+    #if it's a get then use question id to get information from db
+    question = request.form.to_dict()
+    qid = question['id']
+    q = questions.find_one({'_id': qid})
     
-    #This should check if it's a student, if so then redirect to safe page
-    #Students do not have authority to create questions
-    if student:
-        return render_template('homePage.html', student=True, noContent=True)
-    
-    if professor:
-        return render_template('createQuestion.html',courseName=course)
+    #get the answers
+    ans1 = q['answers'][0]
+    ans2 = q['answers'][1]
+    ans3 = ""
+    ans4 = ""
+    ans5 = ""
+    if(len(q['answers']) >= 3):
+        ans3 = q['answers'][2]
+    if(len(q['answers']) >= 4):
+        ans4 = q['answers'][3]
+    if(len(q['answers']) >= 5):
+        ans5 = q['answers'][4]
 
+    return render_template('activeQuestion.html',courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened
 #And that questionID was correctly passed
@@ -261,13 +280,33 @@ def postQuestion(questionID):
 #1. Check that question is active
 #   1a. If it is inactive display appropriate message and do nothing else
 #   1b. If it is active then continue
-#2. Check if student as already submitted a question
-#   2a. If no submission exists create one
-#   2b. If submission exists just update it
-#3 Send the updated number of submissions to client
+#2. check if answer is correct
+#3. Upsert the submission
+#4 Send the updated number of submissions to client
 @socket.on('Submission')
-def handleSubmission(questionID):
-    question = hatTop.find_one({'username': session.get('username')})
+def handleSubmission(questionID, answer):
+    #get question by id
+    question = questions.find_one({'_ID':questionID})
+
+    #If question is inactive then tell client
+    #This should never actually trigger, as the moment a question closes
+    #The client should be alerted and redirected
+    if(question['isActive'] == 0):
+        socket.emit('questionClosed')
+    
+    #check if answer is correct
+    if(answer == question['correctAnswer']):
+        score = 1
+    else:
+        score = 0
+
+    #perform a upsert
+    data = {'course':question['course'], 'answer':answer, 'score':score, 'question':question['question']}
+    gradeBook.update_one({'qid':questionID, 'student':session.get('username')}, data, upsert=True)
+    
+    #get the number of subissions for question
+    count = gradeBook.count_documents({'qid':questionID})
+    socket.emit('newSubmission', count)
     print('Question: ', questionID , ' Started')
 
 #upon ending a question:
