@@ -9,12 +9,21 @@
     
     const socket = io();
     socket.connect('http://127.0.0.1:5000');
-    socket.emit('startQuestion');
+    socket.emit('startQuestion', '{{questionID}}');
     });
 
-    socket.on('response', (data) => {
-        alert(data.message);
+    // When a new submission happens, increase the counter
+    socket.on('newSubmission', (data) => {
+        const submissionCounter = document.getElementById('submissionCounter');
+        submissionCounter.innerHTML=data
     });
+
+    // When prof ends question, message the backend
+    const form = document.getElementById('endButton');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            socket.emit('endQuestion');
+        });
   </script>
 <title>Home</title>
 {%endblock%}
@@ -32,7 +41,7 @@
             <h1 class="pageName">Home</h1>
         </div>
         <div class="titleDiv">
-            <h1>CSE 312</h1>
+            <h1>{{courseName}}</h1>
         </div>
         <div class="profileIconDiv">
             <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
@@ -60,6 +69,9 @@
             {%if answer5%}
             <h1>{{answer5}}</h1><br>
             {%endif%}
+            <div id="submissionCounter"></div>
+            <button id="endButton" type="submit">End Question</button>
+            
         {%endif%} 
 
         <!-- if it's a student then make it a form -->

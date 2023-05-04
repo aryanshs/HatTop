@@ -17,7 +17,7 @@ client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
-gradeBook = db.hatTop  # collection to store gradebook for each course
+gradeBook = db.gradeBook  # collection to store gradebook for each course
 
 
 # default Page
@@ -170,18 +170,17 @@ def createquestion():
     if request.method == "POST":
 
         question = request.form.to_dict()
-        #userData = hatTop.find_one({'username': session.get('username')})
 
         #add question to gradebook
-        gradeBook.insert_one({'course':course, 'question':html.escape(question['question']), 'student':studentName, 'score':0, 'correctAnswer':html.escape(question['correctA'])})
+        q = gradeBook.insert_one({'course':course, 'question':html.escape(question['question']), 'student':'', 'score':0, 'correctAnswer':html.escape(question['correctAnswer']), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if professor:
-            return render_template('activeQuestion.html',professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+            return render_template('activeQuestion.html',courseName=course, questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
         
         #if it's a student then render as form
         if student:
-            return render_template('activeQuestion.html',student=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+            return render_template('activeQuestion.html',courseName=course, student=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
     
     #This should check if it's a student, if so then redirect to safe page
     #Students do not have authority to create questions
@@ -191,10 +190,28 @@ def createquestion():
     if professor:
         return render_template('createQuestion.html',courseName=course)
 
-
 @socket.on('startQuestion')
-def postQuestion(questions):
-    socket.emit('numberOfSubmissions')
+def postQuestion(questionID):
+    print('Question: ', questionID , ' Started')
+
+#When a student submits an answer:
+#1. Check that question is active
+#   1a. If it is inactive display appropriate message and do nothing else
+#   1b. If it is active then continue
+#2. Check if student as already submitted a question
+#   2a. If no submission exists create one
+#   2b. If submission exists just update it
+#3 Update the number of submissions for professors page
+@socket.on('Submission')
+def handleSubmission(questionID):
+    print('Question: ', questionID , ' Started')
+
+#upon ending a question:
+#1. Set the question to inactive in DB
+#2. Display the final results
+@socket.on('endQuestion')
+def stopQuestion():
+    print('Question ended')
 
 if __name__ == "__main__":
     socket.run(app)
