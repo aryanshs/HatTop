@@ -17,7 +17,8 @@ client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
-gradeBook = db.gradeBook  # collection to store gradebook for each course
+gradeBook = db.gradeBook  #collection to store gradebook for each course
+questions = db.questions #collection to store all questions
 
 
 # default Page
@@ -167,12 +168,17 @@ def createquestion():
     student = False #this will be derived from userData
     studentName = 'Zack' #this will be derived from session
     course = 'CSE 42069' #this will be derived from request data
+
     if request.method == "POST":
 
         question = request.form.to_dict()
+        answers = []
+        for key in question:
+            if key[:6] == 'answer':
+                answers.append(question[key])
 
         #add question to gradebook
-        q = gradeBook.insert_one({'course':course, 'question':html.escape(question['question']), 'student':'', 'score':0, 'correctAnswer':html.escape(question['correctAnswer']), 'isActive':1})
+        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':html.escape(question['correctAnswer']), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if professor:
@@ -190,6 +196,9 @@ def createquestion():
     if professor:
         return render_template('createQuestion.html',courseName=course)
 
+#Don't really have to do anything when question starts
+#This is just a sanity check to confirm socket connection has correctly happened
+#And that questionID was correctly passed
 @socket.on('startQuestion')
 def postQuestion(questionID):
     print('Question: ', questionID , ' Started')
@@ -201,9 +210,10 @@ def postQuestion(questionID):
 #2. Check if student as already submitted a question
 #   2a. If no submission exists create one
 #   2b. If submission exists just update it
-#3 Update the number of submissions for professors page
+#3 Send the updated number of submissions to client
 @socket.on('Submission')
 def handleSubmission(questionID):
+    question = hatTop.find_one({'username': session.get('username')})
     print('Question: ', questionID , ' Started')
 
 #upon ending a question:

@@ -10,6 +10,13 @@
     const socket = io();
     socket.connect('http://127.0.0.1:5000');
     socket.emit('startQuestion', '{{questionID}}');
+
+    // When prof ends question, message the backend
+    const button = document.getElementById('endButton');
+        button.addEventListener('submit', (event) => {
+            event.preventDefault();
+            socket.emit('endQuestion');
+        });
     });
 
     // When a new submission happens, increase the counter
@@ -17,13 +24,6 @@
         const submissionCounter = document.getElementById('submissionCounter');
         submissionCounter.innerHTML=data
     });
-
-    // When prof ends question, message the backend
-    const form = document.getElementById('endButton');
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            socket.emit('endQuestion');
-        });
   </script>
 <title>Home</title>
 {%endblock%}
