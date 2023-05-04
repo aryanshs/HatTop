@@ -36,6 +36,7 @@
   grid-column: 2/5;
   background-color: #d8d8d8;
   text-align: center;
+  text-align: center;
   margin-top: 4%;
   border-radius: 8px;
   padding-top: 3%;
@@ -45,6 +46,12 @@
 }
 .addCoursesFormDiv div {
   margin-bottom: 8%;
+  /* margin-left: 50%;
+  background-color: #2b5ad1; */
+}
+.addCoursesFormDiv form {
+  margin-left: 55%;
+  margin-bottom: 25%;
 }
 /* .coursePreNumDiv .labelDiv {
   background-color: aqua;
@@ -53,6 +60,7 @@
 .coursePreNumDiv {
   grid-row: 1;
   grid-column: 2;
+  width: max-content;
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
@@ -91,5 +99,14 @@
 }
 .addButtonDiv button:hover {
   opacity: 0.5;
+}
+.classAddedDiv {
+  background-color: rgb(255, 255, 255);
+  border-radius: 6px;
+}
+.classAddedDiv p {
+  padding: 2%;
+
+  color: red;
 }
 /*Add course content END*/

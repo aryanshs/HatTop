@@ -1,3 +1,4 @@
+from asyncio import constants
 from contextlib import redirect_stderr
 from distutils.log import error
 from http import client
@@ -19,6 +20,7 @@ db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
 gradeBook = db.gradeBook  #collection to store gradebook for each course
 questions = db.questions #collection to store all questions
+professorAndStudents = db.professorAndStudents #collection for professor and students in flask_db database
 
 
 # default Page
@@ -50,6 +52,7 @@ def signUp():
             return render_template('signup.html', name=data['name'], username=data['username'], email=data['email'], error=errorMessage)
         else:
             data['noContent'] = True
+            data['courses'] = []
             hatTop.insert_one(data)
             # this can be called from anywhere
             session['username'] = data['username']
@@ -129,17 +132,68 @@ def homePage():
     # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
     userData = hatTop.find_one({'username': session.get('username')})
     if 'professor' in userData:
-        if 'noContent' in userData:
+        if userData['noContent'] == True:
             return render_template('homePage.html', professor=True, noContent=True)
+        else:
+            classData = professorAndStudents.find(
+                {'professorUsername': session.get('username')})
+            classData2 = []
+            index = 0
+            for i in userData["courses"]:
+                # classData2.append(professorAndStudents.find(
+                #     {'courseCode': i}))
+                for j in professorAndStudents.find(
+                        {'courseCode': i}):
+                    classData2.append(j)
+                index += 1
+
+            print("this is all classes")
+            print(classData2)
+            print(len(classData2))
+
+            return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
 
     if 'student' in userData:
-        if 'noContent' in userData:
+        if userData['noContent'] == True:
             return render_template('homePage.html', student=True, noContent=True)
 
 
 # Adding Courses Page
-@app.route('/addcourses')
+@ app.route('/addcourses', methods=['GET', 'POST'])
 def addCourses():
+
+    if (request.method == "POST"):
+        data = request.form.to_dict()  # convertint data from post into a dictionary
+        # finding user data based on current user's username
+        userData = hatTop.find_one({'username': session.get('username')})
+        newUserData = {}
+        if 'professor' in userData:
+            # creating a students key in the data for professor to later add students,
+            # the value for key 'students' is also a dictionary, which will contain username of the
+            # student who is enrolled in the professor's class and the values could contain their grades
+            # and any other stuff that we need
+            data["students"] = [{}]
+
+            # here we created newUserData dict, which will contain professor's username and their class as a list in professorsAndStudents
+            # newUserData["username"] = session.get('username')
+            data["professorUsername"] = session.get("username")
+
+            # inserting the professor and student data to our collection (professorAndStudents)
+            professorAndStudents.insert_one(data)
+
+            # setting noContent to false for userData (hatTop collection) , signifying the user has enrolled or
+            # signed up for atleast one class
+            userData["noContent"] = False
+            # adding classes for the professor
+            if (len(userData["courses"]) == 0):
+                userData["courses"] = [data["courseCode"]]
+            else:
+                userData["courses"].append(data["courseCode"])
+            print(userData["courses"])
+            print(data["courseCode"])
+            hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
+
+            return render_template('addCourses.html', professor=True, classAdded=True)
 
     # looking into the database to check if the user is a professor or a student
     userData = hatTop.find_one({'username': session.get('username')})
