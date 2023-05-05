@@ -220,6 +220,7 @@ def createquestion():
     
     if professor:
         return render_template('createQuestion.html',courseName=course)
+    
 from bson.objectid import ObjectId
 #receives completed createquestion forms
 #uses that data to
@@ -243,7 +244,7 @@ def activequestion():
                 answers.append(question[key])
 
         #add question to questions collection
-        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][:6]), 'isActive':1})
+        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if professor:
@@ -312,6 +313,7 @@ def handleSubmission(answerInfo):
     #get the number of subissions for question
     count = gradeBook.count_documents({'qid':questionID})
     socket.emit('newSubmission', {'qid':questionID, 'count':count})
+    print('count: ', count)
     print('Student: ', session.get('username'), ' submitted the answer: ', answer, ' for question: ', question['question'])
 
 #upon ending a question:

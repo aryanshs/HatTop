@@ -5,7 +5,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
 <!-- <script src="/socket.io/socket.io.js"></script> -->
 <script>
-    const socket = io();
+    // This forces websocket communcation and prevetns long polling
+    const socket = io({transports: ['websocket'], upgrade: false});
     socket.connect('http://127.0.0.1:5000');
     window.addEventListener('load', function () {
         socket.emit('startQuestion', '{{questionID}}');
@@ -15,7 +16,7 @@
         if (endButton != null) {
             endButton.addEventListener('click', (event) => {
                 event.preventDefault();
-                socket.emit('endQuestion');
+                socket.emit('endQuestion', '{{questionID}}');
             });
         }
 
@@ -32,8 +33,12 @@
 
     // When a new submission happens, increase the counter
     socket.on('newSubmission', (data) => {
+        console.log(data['qid']);
+        if(data.qid == '{{questionID}}'){
         const submissionCounter = document.getElementById('submissionCounter');
-        submissionCounter.innerHTML = data;
+        console.log(data.count);
+        submissionCounter.innerHTML = data.count.toString() + " Students Have Answered";
+        }
     });
 </script>
 <title>Home</title>
