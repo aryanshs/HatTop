@@ -157,6 +157,14 @@ def homePage():
     if 'student' in userData:
         if userData['noContent'] == True:
             return render_template('homePage.html', student=True, noContent=True)
+        else:
+            all_courses = []
+            courses = userData['courses']
+            for course in courses:
+                all_courses.append(professorAndStudents.find_one({'courseCode': course}))
+            print(all_courses)
+            return render_template('homePage.html', student=True, noContent=False,classesData = all_courses) 
+
 
 
 # Adding Courses Page
@@ -198,7 +206,6 @@ def addCourses():
 
     # looking into the database to check if the user is a professor or a student
     userData = hatTop.find_one({'username': session.get('username')})
-
     if 'professor' in userData:
         return render_template('addCourses.html', professor=True)
     if 'student' in userData:
@@ -209,7 +216,6 @@ def addCourses():
         if("query" in data):
             query = data["query"]
             course = load_courses_from_db(query,"prefix")
-            print(course)
         if("courseCode" in data):
             query = data["courseCode"]
             enroll_course = load_courses_from_db(query,"code")
@@ -217,8 +223,11 @@ def addCourses():
             print(enroll_course[0]['coursePrefix'])
             print(data['coursePrefix'])
             if(enroll_course[0]['coursePrefix'] == data['coursePrefix']):
-                hatTop.update_one({'courseCode': query}, { '$push' : { 'students': session.get('username')}})
+                hatTop.update_one({'_id': userData['_id']}, {'$set': {'noContent': False}})
+                professorAndStudents.update_one({'courseCode': query}, { '$push' : { 'students': session.get('username')}})
                 hatTop.update_one({'username': session.get('username')},{ '$push' : { 'courses': data['courseCode']}})
+                return redirect(url_for('homePage'))
+
             else:
                 print("error")
 
@@ -227,10 +236,10 @@ def addCourses():
 
 def load_courses_from_db(query,method):
     if method == "prefix":
-        courses = hatTop.find({'coursePrefix': {'$regex': query, '$options': 'i'}})
+        courses = professorAndStudents.find({'coursePrefix': {'$regex': query, '$options': 'i'}})
         return list(courses)
     elif method == "code":
-        courses = hatTop.find({'courseCode': query})
+        courses = professorAndStudents.find({'courseCode': query})
         return list(courses)
     
 
