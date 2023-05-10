@@ -1,0 +1,60 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/gradebook.css')}}">
+<title>Home</title>
+{%endblock%}
+
+{%block body%}
+<div class="containerGradeBook">
+    <div class="navDiv">
+        <div class="homeLogo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        </div>
+        <div class="hrAfterLogo">
+            <hr/>`
+        </div>
+        <div class="pageDiv">
+            <h1 class="pageName">Home</h1>
+        </div>
+        <div class="titleDiv">
+            <h1>My Courses</h1>
+        </div>
+        <div class="profileIconDiv">
+            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+        </div>
+        <div class="hrAfterNav">
+            <hr/>
+        </div>
+    </div>
+    <div class="contentGradeBook">
+            <div class="contentDiv">
+                        <div class="insideContentDiv">
+                            <h2>{{courseID}}</h2>
+                            <table aria-label="Graded Submissions">
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                    <th>Grade</th>
+                                </tr>
+
+                                {% for gradebook in gradeBookData %}
+                                <tr>
+                                    <td>{{gradebook.student}}</td>
+                                    <td>{{gradebook.question}}</td>
+                                     <td>{{gradebook.answer}}</td>
+                                    <td id="score">{{gradebook.score}}</td>
+                                </tr>
+                                {% endfor %}
+
+
+
+
+                            </table>
+                        </div>
+            </div>
+
+    </div>
+</div>
+{%endblock%}
