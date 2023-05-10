@@ -8,6 +8,7 @@ from flask_socketio import SocketIO, send
 from pymongo import MongoClient
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
+import json
 import html
 import re
 
@@ -299,12 +300,13 @@ def activequestion():
 
         #if it's a professor then don't render as form, just as text
         if 'professor' in userData:
-            return render_template('activeQuestion.html',courseName=course['coursePrefix'], questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+            return render_template('activeQuestion.html',courseID=cid,courseName=course['coursePrefix'], questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
         if 'student' in userData:
             return render_template('loginPage.html')
         
     #if it's a get then use question id to get information from db
     qid = request.args.get('id')
+    cid = request.args.get('courseID')
     obj = ObjectId(qid)
     q = questions.find_one({'_id': obj})
     
@@ -321,8 +323,30 @@ def activequestion():
     if(len(q['answers']) >= 5):
         ans5 = q['answers'][4]
 
-    return render_template('activeQuestion.html',questionID=obj,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    return render_template('activeQuestion.html',questionID=obj,courseID=cid,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
     
+#upon ending a question:
+#1. Set the question to inactive in DB
+#2. Send message to all sockets that question has ended
+#3. Go to prof homepage
+@app.route('/endQuestion', methods=['POST'])
+def stopQuestion():
+    data = request.form.to_dict()
+    cid = data['courseID']
+    qid = data['questionID']
+    qobj = ObjectId(qid)
+
+    #get courseData
+    print('cid: ', cid)
+    print('qid: ', qid)
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+
+    questions.update_one({'_id':qobj}, {'$set':{'isActive':0}})
+
+    socket.emit('questionClosed', qid)
+    return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened
 #And that questionID was correctly passed
@@ -366,16 +390,6 @@ def handleSubmission(answerInfo):
     socket.emit('newSubmission', {'qid':questionID, 'count':count})
     print('count: ', count)
     print('Student: ', session.get('username'), ' submitted the answer: ', answer, ' for question: ', question['question'])
-
-#upon ending a question:
-#1. Set the question to inactive in DB
-#2. Send message to all sockets that question has ended
-#2. Display the final results
-@socket.on('endQuestion')
-def stopQuestion(questionID):
-    gradeBook.update_one({'qid':questionID}, {'isActive':0})
-    socket.emit('questionClosed', questionID)
-    print('Question ended')
 
 if __name__ == "__main__":
     socket.run(app)
