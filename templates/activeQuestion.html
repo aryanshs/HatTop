@@ -11,15 +11,6 @@
     window.addEventListener('load', function () {
         socket.emit('startQuestion', '{{questionID}}');
 
-        // When prof ends question, message the backend
-        const endButton = document.getElementById('endButton');
-        if (endButton != null) {
-            endButton.addEventListener('click', (event) => {
-                event.preventDefault();
-                socket.emit('endQuestion', '{{questionID}}');
-            });
-        }
-
         // When student answers question, message the backend
         const form = document.getElementById('form');
         if(form != null){
@@ -86,7 +77,11 @@
             <h1>{{answer5}}</h1><br>
         {%endif%}
         <div id="submissionCounter"></div>
-        <button id="endButton" type="button">End Question</button>
+        <form action="/endQuestion" id="questionButton" method="post" enctype="multipart/form-data">
+            <input value="{{courseID}}" name="courseID" hidden>
+            <input value="{{questionID}}" name="questionID" hidden>
+            <input  type="submit" value="End Question"></input>
+        </form>
 
         {%endif%}
 

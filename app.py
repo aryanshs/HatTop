@@ -8,6 +8,7 @@ from flask_socketio import SocketIO, send
 from pymongo import MongoClient
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, ValidationError
+import json
 import html
 import re
 
@@ -29,7 +30,6 @@ def home():
     if request.method == "POST":
         data = request.form.to_dict()
 
-        print(data["schoolOption"])
         return render_template('loginPhase2.html', schoolSelected=data['schoolOption'])
 
     return render_template('loginPage.html')
@@ -67,8 +67,6 @@ def signUp():
 def profStudent():
     if request.method == "POST":
         data = request.form.to_dict()
-        print(data)
-        print(session.get('username'))
 
         # setting professor and student to true or false for the user to identify if they they are a professor or a student
         if 'professor' in data:
@@ -97,7 +95,7 @@ def loginPhase2():
         schoolData = ""
         if data['schoolData']:
             schoolData = data['schoolData']
-        print(data)
+
         userData = hatTop.find_one({'username': data['username']})
         # this can be called from anywhere
         session['username'] = data['username']
@@ -122,7 +120,6 @@ def loginPhase2():
                 # if everything was correctly entered, we render the homepage
                 return redirect(url_for('homePage'))
 
-        print(userData)
     return render_template('loginPhase2.html')
 
 
@@ -135,17 +132,17 @@ def homePage():
         if userData['noContent'] == True:
             return render_template('homePage.html', professor=True, noContent=True)
         else:
-            classData = professorAndStudents.find(
-                {'professorUsername': session.get('username')})
+            # classData = professorAndStudents.find(
+            #     {'professorUsername': session.get('username')})
             classData2 = []
             index = 0
             for i in userData["courses"]:
-                # classData2.append(professorAndStudents.find(
-                #     {'courseCode': i}))
+
                 for j in professorAndStudents.find(
                         {'courseCode': i}):
                     classData2.append(j)
                 index += 1
+                print("classData2: ", classData2)
             return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
 
     if 'student' in userData:
@@ -248,32 +245,49 @@ def userLoggedIn():
 #Create a question form
 @app.route('/createquestion', methods=['GET'])
 def createquestion():
-    professor = True
-    student = False
-    course='course 42069'
+    cid = request.args.get('courseID')
+    userData = hatTop.find_one({'username': session.get('username')})
+
+    #get courseData
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+
     #This should check if it's a student, if so then redirect to safe page
     #Students do not have authority to create questions
-    if student:
-        return render_template('homePage.html', student=True, noContent=True)
+    if 'student' in userData:
+        return render_template('loginPage.html')
     
-    if professor:
-        return render_template('createQuestion.html',courseName=course)
-    
+    if 'professor' in userData:
+        return render_template('createQuestion.html',professor=True,courseName=course['coursePrefix'], courseID=cid)
+
+#This receives the course id from homepage
+@app.route('/coursePage', methods=['GET'])
+def coursePage():
+    cid = request.args.get('courseID')
+    userData = hatTop.find_one({'username': session.get('username')})
+
+    #get courseData
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+    print('course: ', course)
+
+    if 'professor' in userData:
+        return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+
 from bson.objectid import ObjectId
 #receives completed createquestion forms
 #uses that data to
 @app.route('/activequestion', methods=['GET', 'POST'])
 def activequestion():
-    #the following variables are hardcoded for testing purposes
-    #once the dependent features are implemented then it will be removed
-    professor = True #this will be derived from userData
-    student = False #this will be derived from userData
-    studentName = 'Zack' #this will be derived from session
-    course = 'CSE 42069' #this will be derived from request data
 
     if request.method == "POST":
-
+        userData = hatTop.find_one({'username': session.get('username')})
         question = request.form.to_dict()
+
+        cid = question['courseID']
+        #get courseData
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
 
         #put all the answers options into list
         answers = []
@@ -285,13 +299,14 @@ def activequestion():
         q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
-        if professor:
-            return render_template('activeQuestion.html',courseName=course, questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+        if 'professor' in userData:
+            return render_template('activeQuestion.html',courseID=cid,courseName=course['coursePrefix'], questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+        if 'student' in userData:
+            return render_template('loginPage.html')
         
     #if it's a get then use question id to get information from db
-    #THIS CONVERTS TO OBJECT FOR TESTING
-    #DON"T FORGET TO REMOVE
     qid = request.args.get('id')
+    cid = request.args.get('courseID')
     obj = ObjectId(qid)
     q = questions.find_one({'_id': obj})
     
@@ -308,8 +323,30 @@ def activequestion():
     if(len(q['answers']) >= 5):
         ans5 = q['answers'][4]
 
-    return render_template('activeQuestion.html',questionID=obj,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    return render_template('activeQuestion.html',questionID=obj,courseID=cid,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
     
+#upon ending a question:
+#1. Set the question to inactive in DB
+#2. Send message to all sockets that question has ended
+#3. Go to prof homepage
+@app.route('/endQuestion', methods=['POST'])
+def stopQuestion():
+    data = request.form.to_dict()
+    cid = data['courseID']
+    qid = data['questionID']
+    qobj = ObjectId(qid)
+
+    #get courseData
+    print('cid: ', cid)
+    print('qid: ', qid)
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+
+    questions.update_one({'_id':qobj}, {'$set':{'isActive':0}})
+
+    socket.emit('questionClosed', qid)
+    return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened
 #And that questionID was correctly passed
@@ -353,16 +390,6 @@ def handleSubmission(answerInfo):
     socket.emit('newSubmission', {'qid':questionID, 'count':count})
     print('count: ', count)
     print('Student: ', session.get('username'), ' submitted the answer: ', answer, ' for question: ', question['question'])
-
-#upon ending a question:
-#1. Set the question to inactive in DB
-#2. Send message to all sockets that question has ended
-#2. Display the final results
-@socket.on('endQuestion')
-def stopQuestion(questionID):
-    gradeBook.update_one({'qid':questionID}, {'isActive':0})
-    socket.emit('questionClosed', questionID)
-    print('Question ended')
 
 if __name__ == "__main__":
     socket.run(app)

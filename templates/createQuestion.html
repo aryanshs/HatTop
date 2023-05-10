@@ -29,14 +29,15 @@
     </div>
     <div class="CreateQuestionForm">
         <form id='form' method="POST" action="/activequestion">
-            <div class="signupForm">
+            <div>
+                    <input value="{{courseID}}" name="courseID" hidden>
                     <!-- Question Text Fields -->
-                    <input type="text" id="question" name="question" placeholder="Question" required/><br>
-                    <input type="text" id="answer1" name="answer1" placeholder="Answer 1" required/><br>
-                    <input type="text" id="answer2" name="answer2" placeholder="Answer 2" required/><br>
-                    <input type="text" id="answer3" name="answer3" placeholder="Answer 3"/><br>
-                    <input type="text" id="answer4" name="answer4" placeholder="Answer 4"/><br>
-                    <input type="text" id="answer5" name="answer5" placeholder="Answer 5"/><br>
+                    <input type="text" id="question" name="question" placeholder="Question" size="100" required/><br>
+                    <input type="text" id="answer1" name="answer1" placeholder="Answer 1" size="100" required/><br>
+                    <input type="text" id="answer2" name="answer2" placeholder="Answer 2" size="100" required/><br>
+                    <input type="text" id="answer3" name="answer3" placeholder="Answer 3" size="100"/><br>
+                    <input type="text" id="answer4" name="answer4" placeholder="Answer 4" size="100"/><br>
+                    <input type="text" id="answer5" name="answer5" placeholder="Answer 5" size="100"/><br>
                     <!-- Buttons to select which question is correct -->
                     <p>Which Question is correct?</p>
                     <label for="a1">answer1</label>
