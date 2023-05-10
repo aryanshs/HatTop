@@ -6,8 +6,6 @@ from urllib import request
 from flask import Flask, render_template, url_for, request, session, redirect
 from flask_socketio import SocketIO, send
 from pymongo import MongoClient
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, ValidationError
 import json
 import html
 import re
@@ -15,7 +13,7 @@ import re
 app = Flask(__name__)
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent") #creating socket
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongo')
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
@@ -411,4 +409,4 @@ def gradebook():
         return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
 
 if __name__ == "__main__":
-    socket.run(app)
+    socket.run(app, host ="0.0.0.0", port=5000)
