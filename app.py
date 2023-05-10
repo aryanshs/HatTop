@@ -407,5 +407,28 @@ def handleSubmission(answerInfo):
     print('count: ', count)
     print('Student: ', session.get('username'), ' submitted the answer: ', answer, ' for question: ', question['question'])
 
+@app.route('/gradebook', methods=["GET"])
+def gradebook():
+    cid = request.args.get('courseID')
+    userData = hatTop.find_one({'username': session.get('username')})
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+    final = []
+
+    if 'professor' in userData:
+        for g in gradeBook.find():
+            if g['cid'] == cid:
+                final.append()
+        return render_template('profGradeboook.html', courseName=course['coursePrefix'], gradeBookData=final)
+
+    if 'student' in userData:
+        for g in gradeBook.find():
+            if g['student'] == session.get('username'):
+                if g['cid'] == cid:
+                    final.append()
+        return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
+
+
+
 if __name__ == "__main__":
     socket.run(app)
