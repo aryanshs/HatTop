@@ -84,12 +84,17 @@
                     </div>
 
             {% elif student%}
+            <div id ='searchbar'>
                 <form action="/addcourses" method="POST">
-                    <div>
-
-                    </div>
+                    <input type="text" name = "query" placeholder="Course Name">
+                    <input type="submit" value="Search">
                 </form>
-            
+                <div>
+                    {% for course in courses %}
+                        {% include 'courseitem.html' %}
+                    {% endfor %}
+                </div>
+            </div>   
             {%endif%}
         </div>
     </div>

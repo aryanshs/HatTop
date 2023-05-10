@@ -147,6 +147,14 @@ def homePage():
     if 'student' in userData:
         if userData['noContent'] == True:
             return render_template('homePage.html', student=True, noContent=True)
+        else:
+            all_courses = []
+            courses = userData['courses']
+            for course in courses:
+                all_courses.append(professorAndStudents.find_one({'courseCode': course}))
+            print(all_courses)
+            return render_template('homePage.html', student=True, noContent=False,classesData = all_courses) 
+
 
 
 # Adding Courses Page
@@ -188,13 +196,43 @@ def addCourses():
 
     # looking into the database to check if the user is a professor or a student
     userData = hatTop.find_one({'username': session.get('username')})
-
     if 'professor' in userData:
         return render_template('addCourses.html', professor=True)
     if 'student' in userData:
-        return render_template('addCourses.html', student=True)
+        course = ''
+        courseCode = None
+        data = request.form.to_dict()  # converting the post data into a dictionary
+        print(data)
+        if("query" in data):
+            query = data["query"]
+            course = load_courses_from_db(query,"prefix")
+        if("courseCode" in data):
+            query = data["courseCode"]
+            enroll_course = load_courses_from_db(query,"code")
 
-# checking if user is logged in
+            print(enroll_course[0]['coursePrefix'])
+            print(data['coursePrefix'])
+            if(enroll_course[0]['coursePrefix'] == data['coursePrefix']):
+                hatTop.update_one({'_id': userData['_id']}, {'$set': {'noContent': False}})
+                professorAndStudents.update_one({'courseCode': query}, { '$push' : { 'students': session.get('username')}})
+                hatTop.update_one({'username': session.get('username')},{ '$push' : { 'courses': data['courseCode']}})
+                return redirect(url_for('homePage'))
+
+            else:
+                print("error")
+
+
+        return render_template('addCourses.html', student=True, courses = course)
+
+def load_courses_from_db(query,method):
+    if method == "prefix":
+        courses = professorAndStudents.find({'coursePrefix': {'$regex': query, '$options': 'i'}})
+        return list(courses)
+    elif method == "code":
+        courses = professorAndStudents.find({'courseCode': query})
+        return list(courses)
+    
+
 def userLoggedIn():
     username = session.get('username', None)
 

@@ -68,7 +68,30 @@
                     
                 {%endfor%}
             </div>
-        
+            {%elif student%}
+            <div class="contentDiv">
+                {% for classData in classesData%}
+                        <div class="insideContentDiv">
+                            <div class="coursePrefixHomeDiv">
+                                <p>{{classData.coursePrefix}}</p>
+                            </div>
+                            <div class="courseNameHomeDiv">
+                                <h6>{{classData.courseName}}</h6>
+                            </div>
+                            <div class="instructorNameHomeDiv">
+                                <p>Instructor: {{classData.instructorName}}</p>
+                            </div>
+                            <div class="joinCodeHomeDiv">
+                                <p> - Join Code: {{classData.courseCode}}</p>
+                            </div>
+                            <div class="enterHomeDiv">
+                                <button class="enterButtonHome">Enter</button>
+                            </div>
+                        </div>
+                    
+                {%endfor%}
+            </div>
+
         {%endif%}
         
     </div>
