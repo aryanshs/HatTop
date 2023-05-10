@@ -31,6 +31,15 @@
         submissionCounter.innerHTML = data.count.toString() + " Students Have Answered";
         }
     });
+
+    // Check if this question is ended
+    socket.on('questionClosed', (data) => {
+        console.log(data['qid']);
+        if(data.qid == '{{questionID}}'){
+        alert('Instructor has closed the question!');
+        window.location.href = "/coursePage?courseID={{courseID}}";
+        }
+    });
 </script>
 <title>Home</title>
 {%endblock%}

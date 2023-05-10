@@ -272,7 +272,17 @@ def coursePage():
     print('course: ', course)
 
     if 'professor' in userData:
-        return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+        return render_template('coursePage.html', professor=True,courseName=course['coursePrefix'], courseID=cid)
+    
+    #get all active questions for this course
+    activeQuestions = []
+    for question in questions.find({'cid': cid}):
+        if question['isActive'] == 1:
+            activeQuestions.append(question)
+
+
+    if 'student' in userData:
+        return render_template('coursePage.html', cid=cid,qid=question['_id'], student=True,courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
 
 from bson.objectid import ObjectId
 #receives completed createquestion forms
@@ -296,7 +306,7 @@ def activequestion():
                 answers.append(question[key])
 
         #add question to questions collection
-        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
+        q = questions.insert_one({'cid':cid,'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if 'professor' in userData:
@@ -305,11 +315,16 @@ def activequestion():
             return render_template('loginPage.html')
         
     #if it's a get then use question id to get information from db
-    qid = request.args.get('id')
-    cid = request.args.get('courseID')
+    qid = request.args.get('qid')
+    cid = request.args.get('cid')
     obj = ObjectId(qid)
     q = questions.find_one({'_id': obj})
     
+    #get courseData
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+
+
     #get the answers
     ans1 = q['answers'][0]
     ans2 = q['answers'][1]
@@ -323,7 +338,7 @@ def activequestion():
     if(len(q['answers']) >= 5):
         ans5 = q['answers'][4]
 
-    return render_template('activeQuestion.html',questionID=obj,courseID=cid,courseName=q['course'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    return render_template('activeQuestion.html',questionID=qid,courseID=cid,courseName=course['coursePrefix'], student=True,question=q['question'] , answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
     
 #upon ending a question:
 #1. Set the question to inactive in DB
@@ -344,8 +359,8 @@ def stopQuestion():
 
     questions.update_one({'_id':qobj}, {'$set':{'isActive':0}})
 
-    socket.emit('questionClosed', qid)
-    return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+    socket.emit('questionClosed', {'qid':qid})
+    return render_template('coursePage.html', professor=True,courseName=course['coursePrefix'], courseID=cid)
 
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened
@@ -367,6 +382,7 @@ def handleSubmission(answerInfo):
     answer = answerInfo['answer']
     questionID = answerInfo['questionID']
     print('submission received')
+    print('qid: ', questionID)
     question = questions.find_one({'_id':ObjectId(questionID)})
 
     #If question is inactive then tell client
@@ -376,13 +392,13 @@ def handleSubmission(answerInfo):
         socket.emit('questionClosed')
     
     #check if answer is correct
-    if(answer == question['correctAnswer']):
+    if(answer == "answer" + str(question['correctAnswer'])):
         score = 1
     else:
         score = 0
 
     #perform a upsert
-    data = {'course':question['course'], 'answer':answer, 'score':score, 'question':question['question']}
+    data = {'cid':question['cid'], 'answer':answer, 'score':score, 'question':question['question']}
     gradeBook.update_one({'qid':questionID, 'student':session.get('username')}, {"$set": data}, upsert=True)
     
     #get the number of subissions for question
