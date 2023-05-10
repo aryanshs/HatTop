@@ -337,8 +337,6 @@ def stopQuestion():
     qobj = ObjectId(qid)
 
     #get courseData
-    print('cid: ', cid)
-    print('qid: ', qid)
     obj = ObjectId(cid)
     course = professorAndStudents.find_one({'_id': obj})
 
@@ -402,17 +400,15 @@ def gradebook():
     if 'professor' in userData:
         for g in gradeBook.find():
             if g['cid'] == cid:
-                final.append()
-        return render_template('profGradeboook.html', courseName=course['coursePrefix'], gradeBookData=final)
+                final.append(g)
+        return render_template('profGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
 
     if 'student' in userData:
         for g in gradeBook.find():
             if g['student'] == session.get('username'):
                 if g['cid'] == cid:
-                    final.append()
+                    final.append(g)
         return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
-
-
 
 if __name__ == "__main__":
     socket.run(app)
