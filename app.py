@@ -244,46 +244,49 @@ def userLoggedIn():
 #Create a question form
 @app.route('/createquestion', methods=['GET'])
 def createquestion():
-    professor = True
-    student = False
-    course='course 42069'
-    #This should check if it's a student, if so then redirect to safe page
-    #Students do not have authority to create questions
-    if student:
-        return render_template('homePage.html', student=True, noContent=True)
-    
-    if professor:
-        return render_template('createQuestion.html',courseName=course)
-
-#This receives the course id from homepage
-@app.route('/coursePage', methods=['POST'])
-def coursePage():
-    data = request.form.to_dict()
+    cid = request.args.get('courseID')
     userData = hatTop.find_one({'username': session.get('username')})
 
     #get courseData
-    obj = ObjectId(data["courseID"])
+    obj = ObjectId(cid)
+    course = professorAndStudents.find_one({'_id': obj})
+
+    #This should check if it's a student, if so then redirect to safe page
+    #Students do not have authority to create questions
+    if 'student' in userData:
+        return render_template('loginPage.html')
+    
+    if 'professor' in userData:
+        return render_template('createQuestion.html',professor=True,courseName=course['coursePrefix'], courseID=cid)
+
+#This receives the course id from homepage
+@app.route('/coursePage', methods=['GET'])
+def coursePage():
+    cid = request.args.get('courseID')
+    userData = hatTop.find_one({'username': session.get('username')})
+
+    #get courseData
+    obj = ObjectId(cid)
     course = professorAndStudents.find_one({'_id': obj})
     print('course: ', course)
 
     if 'professor' in userData:
-        return render_template('coursePage.html', courseName=course['coursePrefix'])
+        return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
 
 from bson.objectid import ObjectId
 #receives completed createquestion forms
 #uses that data to
 @app.route('/activequestion', methods=['GET', 'POST'])
 def activequestion():
-    #the following variables are hardcoded for testing purposes
-    #once the dependent features are implemented then it will be removed
-    professor = True #this will be derived from userData
-    student = False #this will be derived from userData
-    studentName = 'Zack' #this will be derived from session
-    course = 'CSE 42069' #this will be derived from request data
 
     if request.method == "POST":
-
+        userData = hatTop.find_one({'username': session.get('username')})
         question = request.form.to_dict()
+
+        cid = question['courseID']
+        #get courseData
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
 
         #put all the answers options into list
         answers = []
@@ -295,12 +298,12 @@ def activequestion():
         q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
-        if professor:
-            return render_template('activeQuestion.html',courseName=course, questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+        if 'professor' in userData:
+            return render_template('activeQuestion.html',courseName=course['coursePrefix'], questionID=q.inserted_id,professor=True,question=html.escape(question['question']) , answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+        if 'student' in userData:
+            return render_template('loginPage.html')
         
     #if it's a get then use question id to get information from db
-    #THIS CONVERTS TO OBJECT FOR TESTING
-    #DON"T FORGET TO REMOVE
     qid = request.args.get('id')
     obj = ObjectId(qid)
     q = questions.find_one({'_id': obj})

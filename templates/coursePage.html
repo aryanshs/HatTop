@@ -28,4 +28,12 @@
         </div>
     </div>
 </div>
+
+<div id='profOptions' class="center">
+    <form action="/createquestion" id="questionButton" method="get" enctype="multipart/form-data">
+        <input value="{{courseID}}" name="courseID" hidden>
+        <input  type="submit" value="Create Question"></input>
+    </form>
+    <a href="">Gradebook</a>
+</div>
 {%endblock%}

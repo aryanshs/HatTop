@@ -59,7 +59,7 @@
                                 <p> - Join Code: {{classData.courseCode}}</p>
                             </div>
                             <div class="enterHomeDiv">
-                                <form action="/coursePage" id="courseButton" method="post" enctype="multipart/form-data">
+                                <form action="/coursePage" id="courseButton" method="get" enctype="multipart/form-data">
                                     <input value="{{classData._id}}" name="courseID" hidden>
                                     <input class="enterButtonHome" type="submit" value="Enter"></input>
                                 </form>
