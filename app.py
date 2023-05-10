@@ -272,7 +272,17 @@ def coursePage():
     print('course: ', course)
 
     if 'professor' in userData:
-        return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+        return render_template('coursePage.html', professor=True,courseName=course['coursePrefix'], courseID=cid)
+    
+    #get all active questions for this course
+    activeQuestions = []
+    for question in questions.find({'cid': cid}):
+        if question['isActive'] == 1:
+            activeQuestions.append(question)
+
+
+    if 'student' in userData:
+        return render_template('coursePage.html', qid=question['_id'], student=True,courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
 
 from bson.objectid import ObjectId
 #receives completed createquestion forms
@@ -296,7 +306,7 @@ def activequestion():
                 answers.append(question[key])
 
         #add question to questions collection
-        q = questions.insert_one({'course':course, 'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
+        q = questions.insert_one({'cid':cid,'question':html.escape(question['question']), 'answers':answers, 'correctAnswer':int(question['correctAnswer'][6:]), 'isActive':1})
 
         #if it's a professor then don't render as form, just as text
         if 'professor' in userData:
@@ -345,7 +355,7 @@ def stopQuestion():
     questions.update_one({'_id':qobj}, {'$set':{'isActive':0}})
 
     socket.emit('questionClosed', qid)
-    return render_template('coursePage.html', courseName=course['coursePrefix'], courseID=cid)
+    return render_template('coursePage.html', professor=True,courseName=course['coursePrefix'], courseID=cid)
 
 #Don't really have to do anything when question starts
 #This is just a sanity check to confirm socket connection has correctly happened

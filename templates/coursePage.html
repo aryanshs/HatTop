@@ -29,6 +29,7 @@
     </div>
 </div>
 
+{%if professor%}
 <div id='profOptions' class="center">
     <form action="/createquestion" id="questionButton" method="get" enctype="multipart/form-data">
         <input value="{{courseID}}" name="courseID" hidden>
@@ -36,4 +37,33 @@
     </form>
     <a href="">Gradebook</a>
 </div>
+{%endif%}
+
+{%if student%}
+<div id='profOptions' class="center">
+    <form action="/createquestion" id="questionButton" method="get" enctype="multipart/form-data">
+        <input value="{{courseID}}" name="courseID" hidden>
+    </form>
+    <a href="">Gradebook</a>
+
+    <!-- display active questions -->
+    <div id="activeQuestions"> 
+        {%for question in activeQuestions%}
+        <div class="insideContentDiv">
+            <div class="courseNameHomeDiv">
+                <h6>{{question.question}}</h6>
+            </div>
+            <div class="enterHomeDiv">
+                <form action="/coursePage" id="courseButton" method="get" enctype="multipart/form-data">
+                    <input value="{{qid}}" name="courseID" hidden>
+                    <input class="enterButtonHome" type="submit" value="Enter"></input>
+                </form>
+            </div>
+        </div>
+        {%endfor%}
+    </div>
+
+</div>
+
+{%endif%}
 {%endblock%}
