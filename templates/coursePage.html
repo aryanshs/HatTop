@@ -1,0 +1,31 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<title>Home</title>
+{%endblock%}
+
+{%block body%}
+<div class="containerHomePage">
+    <div class="navDiv">
+        <div class="homeLogo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+        </div>
+        <div class="hrAfterLogo">
+            <hr/>
+        </div>
+        <div class="pageDiv">
+            <h1 class="pageName">Home</h1>
+        </div>
+        <div class="titleDiv">
+            <h1>{{courseName}}</h1>
+        </div>
+        <div class="profileIconDiv">
+            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+        </div>
+        <div class="hrAfterNav">
+            <hr/>
+        </div>
+    </div>
+</div>
+{%endblock%}

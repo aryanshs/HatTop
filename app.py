@@ -29,7 +29,6 @@ def home():
     if request.method == "POST":
         data = request.form.to_dict()
 
-        print(data["schoolOption"])
         return render_template('loginPhase2.html', schoolSelected=data['schoolOption'])
 
     return render_template('loginPage.html')
@@ -67,8 +66,6 @@ def signUp():
 def profStudent():
     if request.method == "POST":
         data = request.form.to_dict()
-        print(data)
-        print(session.get('username'))
 
         # setting professor and student to true or false for the user to identify if they they are a professor or a student
         if 'professor' in data:
@@ -97,7 +94,7 @@ def loginPhase2():
         schoolData = ""
         if data['schoolData']:
             schoolData = data['schoolData']
-        print(data)
+
         userData = hatTop.find_one({'username': data['username']})
         # this can be called from anywhere
         session['username'] = data['username']
@@ -122,7 +119,6 @@ def loginPhase2():
                 # if everything was correctly entered, we render the homepage
                 return redirect(url_for('homePage'))
 
-        print(userData)
     return render_template('loginPhase2.html')
 
 
@@ -135,17 +131,17 @@ def homePage():
         if userData['noContent'] == True:
             return render_template('homePage.html', professor=True, noContent=True)
         else:
-            classData = professorAndStudents.find(
-                {'professorUsername': session.get('username')})
+            # classData = professorAndStudents.find(
+            #     {'professorUsername': session.get('username')})
             classData2 = []
             index = 0
             for i in userData["courses"]:
-                # classData2.append(professorAndStudents.find(
-                #     {'courseCode': i}))
+
                 for j in professorAndStudents.find(
                         {'courseCode': i}):
                     classData2.append(j)
                 index += 1
+                print("classData2: ", classData2)
             return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
 
     if 'student' in userData:
@@ -220,7 +216,21 @@ def createquestion():
     
     if professor:
         return render_template('createQuestion.html',courseName=course)
-    
+
+#This receives the course id from homepage
+@app.route('/coursePage', methods=['POST'])
+def coursePage():
+    data = request.form.to_dict()
+    userData = hatTop.find_one({'username': session.get('username')})
+
+    #get courseData
+    obj = ObjectId(data["courseID"])
+    course = professorAndStudents.find_one({'_id': obj})
+    print('course: ', course)
+
+    if 'professor' in userData:
+        return render_template('coursePage.html', courseName=course['coursePrefix'])
+
 from bson.objectid import ObjectId
 #receives completed createquestion forms
 #uses that data to
