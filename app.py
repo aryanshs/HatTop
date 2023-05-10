@@ -359,7 +359,7 @@ def stopQuestion():
 
     questions.update_one({'_id':qobj}, {'$set':{'isActive':0}})
 
-    socket.emit('questionClosed', qid)
+    socket.emit('questionClosed', {'qid':qid})
     return render_template('coursePage.html', professor=True,courseName=course['coursePrefix'], courseID=cid)
 
 #Don't really have to do anything when question starts
