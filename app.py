@@ -13,7 +13,7 @@ import re
 app = Flask(__name__)
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent") #creating socket
-client = MongoClient('mongo')
+client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
@@ -393,20 +393,30 @@ def gradebook():
     userData = hatTop.find_one({'username': session.get('username')})
     obj = ObjectId(cid)
     course = professorAndStudents.find_one({'_id': obj})
-    final = []
+    final = []      # final list of grades from gradebook database
 
+    # populate gradebook with all scores in course for professor
     if 'professor' in userData:
+
+        # collect all scores for every student for one course
         for g in gradeBook.find():
             if g['cid'] == cid:
                 final.append(g)
-        return render_template('profGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
+        # sort grades by questions
+        sortFinal = sorted(final, key= lambda d: d['question'])
+        return render_template('profGradebook.html', courseName=course['courseName'], gradeBookData=sortFinal)
 
+
+    # populate gradebook with student's scores for the current course
     if 'student' in userData:
+
+        # collect all scores for current student for one course
         for g in gradeBook.find():
             if g['student'] == session.get('username'):
                 if g['cid'] == cid:
                     final.append(g)
-        return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
+        return render_template('studGradebook.html', courseName=course['courseName'], gradeBookData=final)
+
 
 if __name__ == "__main__":
-    socket.run(app, host ="0.0.0.0", port=5000)
+    socket.run(app, host = "0.0.0.0", port=5000)
