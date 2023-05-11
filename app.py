@@ -8,11 +8,11 @@ from flask import Flask, render_template, url_for, request, session, redirect, e
 from flask_socketio import SocketIO, send
 import bcrypt
 from pymongo import MongoClient
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, Email, Length, ValidationError
 import json
 import html
 import re
+import bcrypt
+import html
 
 app = Flask(__name__)
 app.secret_key = 'cse312'
@@ -21,7 +21,7 @@ client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
-gradeBook = db.gradeBook  # collection to store gradebook for each course
+gradeBook = db.gradeBook   # collection to store gradebook for each course
 questions = db.questions  # collection to store all questions
 professorAndStudents = db.professorAndStudents  # collection for classes
 
@@ -60,6 +60,15 @@ def signUp():
             errorMessage = "Account already exists, please Login"
             return render_template('signup.html', ExistingUserError=errorMessage)
         else:
+            # encrypting password
+            password = data["password"]
+            salt = bcrypt.gensalt()
+            hash = bcrypt.hashpw(password.encode(), salt)
+
+            # update password in database
+            data["password"] = hash
+            data["confirmPassword"] = hash
+
             data['noContent'] = True
             data['courses'] = []
 
@@ -73,7 +82,7 @@ def signUp():
 
             hatTop.insert_one(data)
             # this can be called from anywhere
-            session['username'] = data['username']
+            session['username'] = html.escape(data['username'])     # escape html injection
 
             return redirect(url_for('profStudent'))
 
@@ -110,6 +119,7 @@ def profStudent():
 def loginPhase2():
     if request.method == "POST":
         data = request.form.to_dict()  # converting the post data into a dictionary
+        data['username'] = html.escape(data['username'])    # escape html injection
         schoolData = ""
 
         for key, value in data.items():
@@ -138,8 +148,8 @@ def loginPhase2():
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
-
                 # if everything was correctly entered, we render the homepage
+
                 return redirect(url_for('homePage'))
 
     return render_template('loginPhase2.html')
@@ -167,6 +177,17 @@ def homePage():
                     index += 1
                     print("classData2: ", classData2)
                 return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
+
+    if 'student' in userData:
+        if userData['noContent'] == True:
+            return render_template('homePage.html', student=True, noContent=True)
+        else:
+            all_courses = []
+            courses = userData['courses']
+            for course in courses:
+                all_courses.append(professorAndStudents.find_one({'courseCode': course}))
+            print(all_courses)
+            return render_template('homePage.html', student=True, noContent=False,classesData = all_courses) 
 
         if 'student' in userData:
             if userData['noContent'] == True:
@@ -407,8 +428,9 @@ def stopQuestion():
         qobj = ObjectId(qid)
 
         # get courseData
-        print('cid: ', cid)
-        print('qid: ', qid)
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
+        #get courseData
         obj = ObjectId(cid)
         course = professorAndStudents.find_one({'_id': obj})
 
@@ -498,4 +520,4 @@ def gradebook():
 
 
 if __name__ == "__main__":
-    socket.run(app)
+    socket.run(app, host = "0.0.0.0", port=5000)

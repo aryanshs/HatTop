@@ -35,16 +35,19 @@
         <input value="{{courseID}}" name="courseID" hidden>
         <input  type="submit" value="Create Question"></input>
     </form>
-    <a href="">Gradebook</a>
+    <form action="/gradebook" id="questionButton" method="get" enctype="multipart/form-data">
+        <input value="{{courseID}}" name="courseID" hidden>
+        <input  type="submit" value="Gradebook"></input>
+    </form>
 </div>
 {%endif%}
 
 {%if student%}
 <div id='profOptions' class="center">
-    <form action="/createquestion" id="questionButton" method="get" enctype="multipart/form-data">
+    <form action="/gradebook" id="questionButton" method="get" enctype="multipart/form-data">
         <input value="{{courseID}}" name="courseID" hidden>
+        <input  type="submit" value="Gradebook"></input>
     </form>
-    <a href="">Gradebook</a>
 
     <!-- display active questions -->
     <div id="activeQuestions"> 

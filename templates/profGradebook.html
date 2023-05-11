@@ -33,17 +33,17 @@
                             <h2>{{courseID}}</h2>
                             <table aria-label="Graded Submissions">
                                 <tr>
-                                    <th>Student</th>
                                     <th>Question</th>
+                                    <th>Student</th>
                                     <th>Answer</th>
                                     <th>Grade</th>
                                 </tr>
 
                                 {% for gradebook in gradeBookData %}
                                 <tr>
-                                    <td>{{gradebook.student}}</td>
                                     <td>{{gradebook.question}}</td>
-                                     <td>{{gradebook.answer}}</td>
+                                    <td>{{gradebook.student}}</td>
+                                    <td>{{gradebook.answer}}</td>
                                     <td id="score">{{gradebook.score}}</td>
                                 </tr>
                                 {% endfor %}
