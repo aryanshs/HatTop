@@ -16,7 +16,7 @@ import re
 
 app = Flask(__name__)
 app.secret_key = 'cse312'
-# socket = SocketIO(app, async_mode="gevent")  # creating socket
+socket = SocketIO(app, async_mode="gevent")  # creating socket
 client = MongoClient('localhost', 27017)
 
 db = client.flask_db  # creating a flask databse
@@ -400,7 +400,7 @@ def stopQuestion():
 # And that questionID was correctly passed
 
 
-# @socket.on('startQuestion')
+@socket.on('startQuestion')
 def postQuestion(questionID):
     print('Question: ', questionID, ' Started')
 
@@ -413,7 +413,7 @@ def postQuestion(questionID):
 # 4 Send the updated number of submissions to client
 
 
-# @socket.on('submission')
+@socket.on('submission')
 def handleSubmission(answerInfo):
     # get question by id
     answer = answerInfo['answer']
