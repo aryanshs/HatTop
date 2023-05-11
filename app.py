@@ -178,18 +178,6 @@ def homePage():
                 all_courses.append(professorAndStudents.find_one({'courseCode': course}))
             print(all_courses)
             return render_template('homePage.html', student=True, noContent=False,classesData = all_courses) 
-
-        if 'student' in userData:
-            if userData['noContent'] == True:
-                return render_template('homePage.html', student=True, noContent=True)
-            else:
-                all_courses = []
-                courses = userData['courses']
-                for course in courses:
-                    all_courses.append(
-                        professorAndStudents.find_one({'courseCode': course}))
-                print(all_courses)
-                return render_template('homePage.html', student=True, noContent=False, classesData=all_courses)
     else:
         return redirect(url_for('home'))
 
