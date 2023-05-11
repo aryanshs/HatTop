@@ -74,6 +74,14 @@
         {%if error%}
             <div class="alertError">{{error}}</div>
         {%endif%}
+        {%if ExistingUserError%}
+            <div class="alertError">
+                <div class="alertError">{{ExistingUserError}}</div>
+                <div><a href="{{url_for('loginPhase2')}}">Login</a></div>
+            </div>
+            
+           
+        {%endif%}
 
         <div class="schoolDropdownSignup">
             <select id="shoolDropdownSignupData" name="schoolData" required>

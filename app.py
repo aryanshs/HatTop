@@ -56,6 +56,9 @@ def signUp():
         elif data['password'] != data['confirmPassword']:
             errorMessage = 'Passwords must be the same'
             return render_template('signup.html', name=data['name'], username=data['username'], email=data['email'], error=errorMessage)
+        elif hatTop.find_one({'username': data['username']}):
+            errorMessage = "Account already exists, please Login"
+            return render_template('signup.html', ExistingUserError=errorMessage)
         else:
             data['noContent'] = True
             data['courses'] = []
