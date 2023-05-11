@@ -17,7 +17,7 @@ import html
 app = Flask(__name__)
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent")  # creating socket
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongo', 27017)
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
@@ -60,25 +60,15 @@ def signUp():
             errorMessage = "Account already exists, please Login"
             return render_template('signup.html', ExistingUserError=errorMessage)
         else:
-            # encrypting password
-            password = data["password"]
-            salt = bcrypt.gensalt()
-            hash = bcrypt.hashpw(password.encode(), salt)
-
-            # update password in database
-            data["password"] = hash
-            data["confirmPassword"] = hash
-
-            data['noContent'] = True
-            data['courses'] = []
-
             # Hashing password
             salt = bcrypt.gensalt()
-            hashedPassword = bcrypt.hashpw(
-                data['password'].encode('utf-8'), salt)
+            hashedPassword = bcrypt.hashpw(data['password'].encode('utf-8'), salt)
             data['password'] = hashedPassword
             data['confirmPassword'] = hashedPassword
             data['salt'] = salt
+
+            data['noContent'] = True
+            data['courses'] = []
 
             hatTop.insert_one(data)
             # this can be called from anywhere
