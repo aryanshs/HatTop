@@ -1,0 +1,6 @@
+gevent
+flask
+flask-socketio
+pymongo
+gevent-websocket
+bcrypt

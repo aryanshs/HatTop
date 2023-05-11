@@ -1,0 +1,101 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/addcourses.css')}}">
+<title>Adding Courses</title>
+{%endblock%}
+
+{%block body%}
+    <div class="containerAddingCourses">
+        <div class="navDiv">
+            <div class="homeLogo">
+                <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+            </div>
+            <div class="hrAfterLogo">
+                <hr/>
+            </div>
+            <div class="pageDiv">
+                <h1 class="pageName">Home</h1>
+            </div>
+            <div class="titleDiv">
+                <h1>Add Courses</h1>
+            </div>
+            <div class="profileIconDiv">
+                <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+            </div>
+            <div class="hrAfterNav">
+                <hr/>
+            </div>
+        </div>
+        <div class="contentAddCoursesPage">
+            <div class="backButtonDiv" onclick=location.href="{{url_for('homePage')}}">
+                <img src="{{url_for('static', filename='images/back.png')}}" alt="Logo"/>
+            </div>
+            <div class="hrAfterBackButton">
+                <hr/>
+            </div>
+            {% if professor%}
+                <!-- <form action="/addcourses" method="POST"> -->
+                    <div class="addCoursesFormDiv">
+                        <form action="/addcourses" method="POST">
+                            <div class="coursePreNumDiv">
+                                <div class="labelDiv">
+                                    <label for="coursePreNum">Course Prefix and Number: </label>
+                                </div>
+                                <div class="inputDiv">
+                                    <input id="coursePreNum" name="coursePrefix" placeholder="CSE 312" required/>
+                                </div>
+                            </div>
+                            <div class="courseNameDiv">
+                                <div class="labelDiv">
+                                    <label for="courseName">Course Name: </label>
+                                </div>
+                                <div class="inputDiv">
+                                    <input id="courseName" name="courseName" placeholder="Web Applications" required/>
+                                </div>
+                            </div>
+                            <div class="instructorNameDiv">
+                                <div class="labelDiv">
+                                    <label for="instructorName">Instructor's Name: </label>
+                                </div>
+                                <div class="inputDiv">
+                                    <input id="instructorName" name="instructorName" placeholder="Jesse Hartloff" required/>
+                                </div>
+                            </div>
+                            <div class="classCodeDiv">
+                                <div class="labelDiv">
+                                    <label for="instructorName">Class Code: </label>
+                                </div>
+                                <div class="inputDiv">
+                                    <input id="classCode" name="courseCode" placeholder="123456" required/>
+                                </div>
+                            </div>
+                            <div class="addButtonDiv">
+                                <button class="addButton">Add Course</button>
+                            </div>
+                            {%if classAdded%}
+                            <div class="classAddedDiv">
+                                <p>Your class was successfully added, feel free to add more or go to <span><a href="{{url_for('homePage')}}"">Home</a></span> to view your classes.</p>
+                            </div>
+                            {%endif%}
+                        </form>
+                        
+                    </div>
+
+            {% elif student%}
+            <div id ='searchbar'>
+                <form action="/addcourses" method="POST">
+                    <input type="text" name = "query" placeholder="Course Name">
+                    <input type="submit" value="Search">
+                </form>
+                <div>
+                    {% for course in courses %}
+                        {% include 'courseitem.html' %}
+                    {% endfor %}
+                </div>
+            </div>   
+            {%endif%}
+        </div>
+    </div>
+{%endblock%}

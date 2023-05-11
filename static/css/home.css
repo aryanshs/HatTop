@@ -1,0 +1,222 @@
+.containerHomePage {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10%, 20%));
+  grid-template-rows: repeat(auto-fill, minmax(10%, 20%));
+}
+/*Nav Style Start*/
+.navDiv {
+  grid-row: 1;
+  grid-column: 1/6;
+  display: grid;
+  grid-template-columns: 0.5fr 0.3fr 0.5fr repeat(3, 2fr);
+  grid-row: 0.2fr 0.2fr;
+}
+.homeLogo {
+  grid-column: 1;
+  grid-row: 1;
+}
+.hrAfterLogo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.hrAfterLogo hr {
+  width: 1.2%;
+  height: 55%;
+  margin-top: 0%;
+  margin-left: 0%;
+}
+.pageDiv {
+  grid-column: 3;
+  grid-row: 1;
+}
+.pageDiv h1 {
+  margin-top: 0%;
+  margin-left: 0%;
+}
+.titleDiv {
+  grid-column: 5;
+  margin-top: 0%;
+}
+.titleDiv h1 {
+  margin-top: 0%;
+}
+.hrAfterNav {
+  grid-row: 2;
+
+  grid-column: 1/-1;
+}
+.hrAfterNav hr {
+  margin-top: 0%;
+}
+.pageName{
+  cursor: pointer;
+  opacity: 1;
+}
+.pageName:hover{
+  opacity: 0.5;
+}
+
+.profileIconDiv{
+  grid-column: 6;
+  grid-row: 1;
+  
+  margin-right: 0%;
+  text-align: right;
+  cursor: pointer;
+}
+.profileIcon{
+  opacity: 1;
+  width: 8%;
+}
+.profileIcon:hover{
+  opacity: 0.5;
+}
+
+.logoutDiv a{
+  color: red;
+  font-size: medium;
+  opacity: 1;
+}
+
+.logoutDiv:hover{
+  opacity: 0.5;
+}
+/*Nav Style End*/
+
+/*Home Page Content Start*/
+.contentHomePage{
+  grid-row: 2;
+  grid-column: 2/5;
+  margin-top: 2%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 20%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 50%));
+}
+.joinButtonDiv{
+  grid-column: 5;
+  grid-row: 1;
+  
+}
+.joinCourseButton{
+  background-color: #2b5ad1;
+  color: white;
+  padding: 2%;
+  padding-left: 4%;
+  padding-right: 4%;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  opacity: 1;
+}
+.joinCourseButton:hover{
+  opacity: 0.5;
+}
+
+.hrAfterJoinButton{
+  grid-column: 2/5;
+  grid-row: 2;
+  margin-top: 2%;
+}
+
+.hrAfterJoinButton hr{
+  border-color: white;
+  border-width: 1px;
+}
+
+.noContentDiv{
+  margin-top: 2%;
+  text-align: center;
+  grid-row: 3;
+  grid-column: 2/5;
+}
+
+.noContentDiv{
+  color: grey;
+}
+
+.center {
+  margin: auto;
+  width: 50%;
+  border: 3px solid green;
+  padding: 10px;
+}
+
+/* when the user has enrolled or signed up for class div*/
+.contentDiv{
+  /* margin-top: 2%;
+  grid-row: 3;
+  grid-column: 2/5;
+  background-color: #d8d8d8;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 50%));
+  border-radius: 8px; */
+  grid-row: 3;
+  grid-column: 2/5;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  /* grid-template-rows: repeat(auto-fill, minmax(5%, 50%)); */
+
+}
+.insideContentDiv{
+  margin-top: 2%;
+  /* grid-row:3;*/
+  grid-column: 1/5;
+  background-color: #d8d8d8;
+  /* padding: 5%; */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 50%));
+  border-radius: 8px;
+}
+
+.coursePrefixHomeDiv{
+  grid-row: 1;
+  grid-column: 1;
+  margin-left: 2%;
+}
+
+.courseNameHomeDiv{
+  grid-row: 2;
+  grid-column: 1;
+  margin-left: 2%;
+}
+.courseNameHomeDiv h6{
+  font-size: large;
+  font-weight: 550;
+  margin-top: 0%;
+}
+.instructorNameHomeDiv{
+  grid-row: 3;
+  grid-column: 1; 
+  margin-left: 2%;
+}
+.instructorNameHomeDiv p{
+  margin-top: 0%;
+}
+.joinCodeHomeDiv{
+  grid-row: 3;
+  grid-column: 2;
+}
+.joinCodeHomeDiv p{
+  margin-top: 0%;
+}
+.enterHomeDiv{
+  grid-row: 3;
+  grid-column: 3;
+}
+.enterButtonHome{
+  background-color: red;
+  padding: 6%;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  opacity: 1;
+}
+.enterButtonHome:hover{
+  cursor: pointer;
+  opacity: 0.5;
+}
+/*Home Page Content End

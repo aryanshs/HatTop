@@ -1,0 +1,147 @@
+.containerGradeBook {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10%, 20%));
+  grid-template-rows: repeat(auto-fill, minmax(10%, 20%));
+}
+/*Nav Style Start*/
+.navDiv {
+  grid-row: 1;
+  grid-column: 1/6;
+  display: grid;
+  grid-template-columns: 0.5fr 0.3fr 0.5fr repeat(3, 2fr);
+  grid-row: 0.2fr 0.2fr;
+}
+.homeLogo {
+  grid-column: 1;
+  grid-row: 1;
+}
+.hrAfterLogo {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.hrAfterLogo hr {
+  width: 1.2%;
+  height: 55%;
+  margin-top: 0%;
+  margin-left: 0%;
+}
+.pageDiv {
+  grid-column: 3;
+  grid-row: 1;
+}
+.pageDiv h1 {
+  margin-top: 0%;
+  margin-left: 0%;
+}
+.titleDiv {
+  grid-column: 5;
+  margin-top: 0%;
+}
+.titleDiv h1 {
+  margin-top: 0%;
+}
+.hrAfterNav {
+  grid-row: 2;
+
+  grid-column: 1/-1;
+}
+.hrAfterNav hr {
+  margin-top: 0%;
+}
+.pageName{
+  cursor: pointer;
+  opacity: 1;
+}
+.pageName:hover{
+  opacity: 0.5;
+}
+
+.profileIconDiv{
+  grid-column: 6;
+  grid-row: 1;
+
+  margin-right: 0%;
+  text-align: right;
+}
+.profileIcon{
+  width: 8%;
+}
+
+/*Nav Style End*/
+
+/*Home Page Content Start*/
+.contentGradeBook{
+
+  grid-row: 2;
+  grid-column: 1/6;
+  margin-left: 2%;
+  margin-right: 2%;
+  margin-top: 2%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 100%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 100%));
+
+}
+
+
+/* when the user has enrolled or signed up for class div*/
+.contentDiv{
+  /* margin-top: 2%;
+  grid-row: 3;
+  grid-column: 2/5;
+  background-color: #d8d8d8;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 50%));
+  border-radius: 8px; */
+  /*
+  grid-row: 3;
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  /* grid-template-rows: repeat(auto-fill, minmax(5%, 50%)); */
+
+}
+
+table, th, td {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  padding: 15px;
+
+}
+#score{
+  text-align: right;
+}
+th {
+  height: 70px;
+}
+
+tr:hover {
+  background-color: grey;
+}
+
+th, td{
+  border: 1px solid #ddd;
+}
+
+.insideContentDiv{
+  /*
+  margin-top: 2%;
+  /* grid-row:3;*/
+
+ /* grid-column: 1/5;
+  background-color: #d8d8d8;
+  /* padding: 5%; */
+  /*
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5%, 46%));
+  grid-template-rows: repeat(auto-fill, minmax(5%, 50%));
+  border-radius: 8px;
+  */
+}
+
+
+/*Home Page Content End

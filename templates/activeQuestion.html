@@ -1,0 +1,132 @@
+{%extends 'base.html'%}
+
+{%block head%}
+<link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<!-- <script src="/socket.io/socket.io.js"></script> -->
+<script>
+    // This forces websocket communcation and prevetns long polling
+    const socket = io({transports: ['websocket'], upgrade: false});
+    socket.connect('http://127.0.0.1:5000');
+    window.addEventListener('load', function () {
+        socket.emit('startQuestion', '{{questionID}}');
+
+        // When student answers question, message the backend
+        const form = document.getElementById('form');
+        if(form != null){
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const answer = document.querySelector('input[name="answer"]:checked').value;
+                socket.emit('submission', { 'questionID': '{{questionID}}', 'answer': answer });
+            });
+        }
+    });
+
+    // When a new submission happens, increase the counter
+    socket.on('newSubmission', (data) => {
+        console.log(data['qid']);
+        if(data.qid == '{{questionID}}'){
+        const submissionCounter = document.getElementById('submissionCounter');
+        console.log(data.count);
+        submissionCounter.innerHTML = data.count.toString() + " Students Have Answered";
+        }
+    });
+
+    // Check if this question is ended
+    socket.on('questionClosed', (data) => {
+        console.log(data['qid']);
+        if(data.qid == '{{questionID}}'){
+        alert('Instructor has closed the question!');
+        window.location.href = "/coursePage?courseID={{courseID}}";
+        }
+    });
+</script>
+<title>Home</title>
+{%endblock%}
+
+{%block body%}
+<div class="containerHomePage">
+    <div class="navDiv">
+        <div class="homeLogo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo" />
+        </div>
+        <div class="hrAfterLogo">
+            <hr />
+        </div>
+        <div class="pageDiv">
+            <h1 class="pageName">Home</h1>
+        </div>
+        <div class="titleDiv">
+            <h1>{{courseName}}</h1>
+        </div>
+        <div class="profileIconDiv">
+            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile" />
+        </div>
+        <div class="hrAfterNav">
+            <hr />
+        </div>
+    </div>
+    <div class="activeQuestion">
+        <!-- if it's a prof then don't make it a form, just text -->
+        {%if professor%}
+            <h1>{{question}}</h1><br>
+            {%if answer1%}
+            <h1>{{answer1}}</h1><br>
+            {%endif%}
+            {%if answer2%}
+            <h1>{{answer2}}</h1><br>
+            {%endif%}
+            {%if answer3%}
+            <h1>{{answer3}}</h1><br>
+            {%endif%}
+            {%if answer4%}
+            <h1>{{answer4}}</h1><br>
+            {%endif%}
+            {%if answer5%}
+            <h1>{{answer5}}</h1><br>
+        {%endif%}
+        <div id="submissionCounter"></div>
+        <form action="/endQuestion" id="questionButton" method="post" enctype="multipart/form-data">
+            <input value="{{courseID}}" name="courseID" hidden>
+            <input value="{{questionID}}" name="questionID" hidden>
+            <input  type="submit" value="End Question"></input>
+        </form>
+
+        {%endif%}
+
+        <!-- if it's a student then make it a form -->
+        {%if student%}
+        <h1>{{question}}</h1><br>
+        <form id="form">
+            {%if answer1%}
+            <label for="a1">{{answer1}}</label>
+            <input type="radio" id="a1" name="answer" value="answer1"><br>
+            {%endif%}
+
+            {%if answer2%}
+            <label for="a2">{{answer2}}</label>
+            <input type="radio" id="a2" name="answer" value="answer2"><br>
+            {%endif%}
+
+            {%if answer3%}
+            <label for="a3">{{answer3}}</label>
+            <input type="radio" id="a3" name="answer" value="answer3"><br>
+            {%endif%}
+
+            {%if answer4%}
+            <label for="a4">{{answer4}}</label>
+            <input type="radio" id="a4" name="answer" value="answer4"><br>
+            {%endif%}
+
+            {%if answer5%}
+            <label for="a5">{{answer5}}</label>
+            <input type="radio" id="a5" name="answer" value="answer5"><br>
+            {%endif%}
+
+            <br>
+            <button id="submitAnswer" type="submit">Submit Answer</button>
+        </form>
+        
+        {%endif%}
+    </div>
+    {%endblock%}

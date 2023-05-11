@@ -32,7 +32,9 @@
 
 {%block body%}
 <div class="containerSignup">
-    <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+    <div class="logo">
+        <img src="{{url_for('static', filename='images/logo.png')}}" alt="Logo"/>
+    </div>
     <form method="POST" action="/signup">
         <div class="signupForm">
             {%if name%}
@@ -60,17 +62,25 @@
             
         </div>
 
-        <div class="signupForm">
+        <div class="signupForm passwordDiv">
             <input type="password" id="password" name="password" class="passwordField" placeholder="Password" required/>
             <img id="showPassword" src="{{url_for('static', filename='images/eyeView.png')}}" onclick="togglePassword()"/>
         </div>
 
-        <div class="signupForm">
+        <div class="signupForm passwordDiv">
             <input type="password" id="confirmPassword" name="confirmPassword" class="passwordField" placeholder="Confirm Password" required/>
             <img id="showPassword2" src="{{url_for('static', filename='images/eyeView.png')}}" onclick="toggleConfirmPassword()"/>
         </div>
         {%if error%}
             <div class="alertError">{{error}}</div>
+        {%endif%}
+        {%if ExistingUserError%}
+            <div class="alertError">
+                <div class="alertError">{{ExistingUserError}}</div>
+                <div><a href="{{url_for('loginPhase2')}}">Login</a></div>
+            </div>
+            
+           
         {%endif%}
 
         <div class="schoolDropdownSignup">
