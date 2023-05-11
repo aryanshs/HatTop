@@ -9,11 +9,13 @@ from pymongo import MongoClient
 import json
 import html
 import re
+import bcrypt
+
 
 app = Flask(__name__)
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent") #creating socket
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongo')
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
@@ -38,7 +40,6 @@ def home():
 def signUp():
     if request.method == "POST":
         data = request.form.to_dict()
-
         pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
 
         # checking if password is strong enough
@@ -49,6 +50,15 @@ def signUp():
             errorMessage = 'Passwords must be the same'
             return render_template('signup.html', name=data['name'], username=data['username'], email=data['email'], error=errorMessage)
         else:
+            # encrypting password
+            password = data["password"]
+            salt = bcrypt.gensalt()
+            hash = bcrypt.hashpw(password.encode(), salt)
+
+            # update password in database
+            data["password"] = hash
+            data["confirmPassword"] = hash
+
             data['noContent'] = True
             data['courses'] = []
             hatTop.insert_one(data)
@@ -107,14 +117,15 @@ def loginPhase2():
 
         # if they do have an account, we check if their password, username, and school are correctly entered
         else:
-            if userData['password'] != data['password']:
+            # checks if hashed password matches password entered
+            check = bcrypt.checkpw(data['password'].encode(), userData['password'])
+            if not check:
                 error_message = "Please Check Your Password"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], PasswordError=error_message)
             elif userData['schoolData'] != schoolData:
                 error_message = "Please ensure you select the right School"
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
-
                 # if everything was correctly entered, we render the homepage
                 return redirect(url_for('homePage'))
 
@@ -389,6 +400,7 @@ def handleSubmission(answerInfo):
 
 @app.route('/gradebook', methods=["GET"])
 def gradebook():
+    # gather course and user data
     cid = request.args.get('courseID')
     userData = hatTop.find_one({'username': session.get('username')})
     obj = ObjectId(cid)
@@ -397,7 +409,6 @@ def gradebook():
 
     # populate gradebook with all scores in course for professor
     if 'professor' in userData:
-
         # collect all scores for every student for one course
         for g in gradeBook.find():
             if g['cid'] == cid:
@@ -406,10 +417,8 @@ def gradebook():
         sortFinal = sorted(final, key= lambda d: d['question'])
         return render_template('profGradebook.html', courseName=course['courseName'], gradeBookData=sortFinal)
 
-
     # populate gradebook with student's scores for the current course
     if 'student' in userData:
-
         # collect all scores for current student for one course
         for g in gradeBook.find():
             if g['student'] == session.get('username'):
