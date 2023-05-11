@@ -148,106 +148,109 @@ def loginPhase2():
 # Home Page
 @ app.route('/home')
 def homePage():
-    # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
-    userData = hatTop.find_one({'username': session.get('username')})
-    if 'professor' in userData:
-        if userData['noContent'] == True:
-            return render_template('homePage.html', professor=True, noContent=True)
-        else:
-            # classData = professorAndStudents.find(
-            #     {'professorUsername': session.get('username')})
-            classData2 = []
-            index = 0
-            for i in userData["courses"]:
+    if userLoggedIn():
+        # checking if user is a professor or a student, and checking if they are enrolled or have signed up for any classes
+        userData = hatTop.find_one({'username': session.get('username')})
+        if 'professor' in userData:
+            if userData['noContent'] == True:
+                return render_template('homePage.html', professor=True, noContent=True)
+            else:
+                # classData = professorAndStudents.find(
+                #     {'professorUsername': session.get('username')})
+                classData2 = []
+                index = 0
+                for i in userData["courses"]:
 
-                for j in professorAndStudents.find(
-                        {'courseCode': i}):
-                    classData2.append(j)
-                index += 1
-                print("classData2: ", classData2)
-            return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
+                    for j in professorAndStudents.find(
+                            {'courseCode': i}):
+                        classData2.append(j)
+                    index += 1
+                    print("classData2: ", classData2)
+                return render_template('homePage.html', professor=True, noContent=False, classesData=classData2)
 
-    if 'student' in userData:
-        if userData['noContent'] == True:
-            return render_template('homePage.html', student=True, noContent=True)
-        else:
-            all_courses = []
-            courses = userData['courses']
-            for course in courses:
-                all_courses.append(
-                    professorAndStudents.find_one({'courseCode': course}))
-            print(all_courses)
-            return render_template('homePage.html', student=True, noContent=False, classesData=all_courses)
+        if 'student' in userData:
+            if userData['noContent'] == True:
+                return render_template('homePage.html', student=True, noContent=True)
+            else:
+                all_courses = []
+                courses = userData['courses']
+                for course in courses:
+                    all_courses.append(
+                        professorAndStudents.find_one({'courseCode': course}))
+                print(all_courses)
+                return render_template('homePage.html', student=True, noContent=False, classesData=all_courses)
+    else:
+        return redirect(url_for('home'))
 
 
 # Adding Courses Page
 @ app.route('/addcourses', methods=['GET', 'POST'])
 def addCourses():
+    if userLoggedIn():
+        if (request.method == "POST"):
+            data = request.form.to_dict()  # convertint data from post into a dictionary
+            # finding user data based on current user's username
+            userData = hatTop.find_one({'username': session.get('username')})
+            newUserData = {}
+            if 'professor' in userData:
+                # creating a students key in the data for professor to later add students,
+                # the value for key 'students' is also a dictionary, which will contain username of the
+                # student who is enrolled in the professor's class and the values could contain their grades
+                # and any other stuff that we need
+                data["students"] = [{}]
 
-    if (request.method == "POST"):
-        data = request.form.to_dict()  # convertint data from post into a dictionary
-        # finding user data based on current user's username
+                # here we created newUserData dict, which will contain professor's username and their class as a list in professorsAndStudents
+                # newUserData["username"] = session.get('username')
+                data["professorUsername"] = session.get("username")
+
+                # inserting the professor and student data to our collection (professorAndStudents)
+                professorAndStudents.insert_one(data)
+
+                # setting noContent to false for userData (hatTop collection) , signifying the user has enrolled or
+                # signed up for atleast one class
+                userData["noContent"] = False
+                # adding classes for the professor
+                if (len(userData["courses"]) == 0):
+                    userData["courses"] = [data["courseCode"]]
+                else:
+                    userData["courses"].append(data["courseCode"])
+                print(userData["courses"])
+                print(data["courseCode"])
+                hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
+
+                return render_template('addCourses.html', professor=True, classAdded=True)
         userData = hatTop.find_one({'username': session.get('username')})
-        newUserData = {}
         if 'professor' in userData:
-            # creating a students key in the data for professor to later add students,
-            # the value for key 'students' is also a dictionary, which will contain username of the
-            # student who is enrolled in the professor's class and the values could contain their grades
-            # and any other stuff that we need
-            data["students"] = [{}]
+            return render_template('addCourses.html', professor=True)
+        if 'student' in userData:
+            course = ''
+            courseCode = None
+            data = request.form.to_dict()  # converting the post data into a dictionary
+            print(data)
+            if ("query" in data):
+                query = data["query"]
+                course = load_courses_from_db(query, "prefix")
+            if ("courseCode" in data):
+                query = data["courseCode"]
+                enroll_course = load_courses_from_db(query, "code")
 
-            # here we created newUserData dict, which will contain professor's username and their class as a list in professorsAndStudents
-            # newUserData["username"] = session.get('username')
-            data["professorUsername"] = session.get("username")
+                print(enroll_course[0]['coursePrefix'])
+                print(data['coursePrefix'])
+                if (enroll_course[0]['coursePrefix'] == data['coursePrefix']):
+                    hatTop.update_one({'_id': userData['_id']}, {
+                        '$set': {'noContent': False}})
+                    professorAndStudents.update_one(
+                        {'courseCode': query}, {'$push': {'students': session.get('username')}})
+                    hatTop.update_one({'username': session.get('username')}, {
+                        '$push': {'courses': data['courseCode']}})
+                    return redirect(url_for('homePage'))
 
-            # inserting the professor and student data to our collection (professorAndStudents)
-            professorAndStudents.insert_one(data)
+                else:
+                    print("error")
 
-            # setting noContent to false for userData (hatTop collection) , signifying the user has enrolled or
-            # signed up for atleast one class
-            userData["noContent"] = False
-            # adding classes for the professor
-            if (len(userData["courses"]) == 0):
-                userData["courses"] = [data["courseCode"]]
-            else:
-                userData["courses"].append(data["courseCode"])
-            print(userData["courses"])
-            print(data["courseCode"])
-            hatTop.update_one({'_id': userData['_id']}, {'$set': userData})
-
-            return render_template('addCourses.html', professor=True, classAdded=True)
-
-    # looking into the database to check if the user is a professor or a student
-    userData = hatTop.find_one({'username': session.get('username')})
-    if 'professor' in userData:
-        return render_template('addCourses.html', professor=True)
-    if 'student' in userData:
-        course = ''
-        courseCode = None
-        data = request.form.to_dict()  # converting the post data into a dictionary
-        print(data)
-        if ("query" in data):
-            query = data["query"]
-            course = load_courses_from_db(query, "prefix")
-        if ("courseCode" in data):
-            query = data["courseCode"]
-            enroll_course = load_courses_from_db(query, "code")
-
-            print(enroll_course[0]['coursePrefix'])
-            print(data['coursePrefix'])
-            if (enroll_course[0]['coursePrefix'] == data['coursePrefix']):
-                hatTop.update_one({'_id': userData['_id']}, {
-                                  '$set': {'noContent': False}})
-                professorAndStudents.update_one(
-                    {'courseCode': query}, {'$push': {'students': session.get('username')}})
-                hatTop.update_one({'username': session.get('username')}, {
-                                  '$push': {'courses': data['courseCode']}})
-                return redirect(url_for('homePage'))
-
-            else:
-                print("error")
-
-        return render_template('addCourses.html', student=True, courses=course)
+            return render_template('addCourses.html', student=True, courses=course)
+    else:
+        return redirect(url_for('home'))
 
 
 def load_courses_from_db(query, method):
@@ -268,50 +271,66 @@ def userLoggedIn():
     else:
         return False
 
+# logging out user
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    if request.method == "POST":
+        username = session.get('username')
+        del session['username']
+        return redirect(url_for('home'))
+
 # Create a question form
 
 
 @ app.route('/createquestion', methods=['GET'])
 def createquestion():
-    cid = request.args.get('courseID')
-    userData = hatTop.find_one({'username': session.get('username')})
+    if (userLoggedIn()):
+        cid = request.args.get('courseID')
+        userData = hatTop.find_one({'username': session.get('username')})
 
-    # get courseData
-    obj = ObjectId(cid)
-    course = professorAndStudents.find_one({'_id': obj})
+        # get courseData
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
 
-    # This should check if it's a student, if so then redirect to safe page
-    # Students do not have authority to create questions
-    if 'student' in userData:
-        return render_template('loginPage.html')
+        # This should check if it's a student, if so then redirect to safe page
+        # Students do not have authority to create questions
+        if 'student' in userData:
+            return render_template('loginPage.html')
 
-    if 'professor' in userData:
-        return render_template('createQuestion.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
+        if 'professor' in userData:
+            return render_template('createQuestion.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
+    else:
+        return redirect(url_for('home'))
 
 # This receives the course id from homepage
 
 
 @ app.route('/coursePage', methods=['GET'])
 def coursePage():
-    cid = request.args.get('courseID')
-    userData = hatTop.find_one({'username': session.get('username')})
+    if userLoggedIn():
+        cid = request.args.get('courseID')
+        userData = hatTop.find_one({'username': session.get('username')})
 
-    # get courseData
-    obj = ObjectId(cid)
-    course = professorAndStudents.find_one({'_id': obj})
-    print('course: ', course)
+        # get courseData
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
+        print('course: ', course)
 
-    if 'professor' in userData:
-        return render_template('coursePage.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
+        if 'professor' in userData:
+            return render_template('coursePage.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
 
-    # get all active questions for this course
-    activeQuestions = []
-    for question in questions.find({'cid': cid}):
-        if question['isActive'] == 1:
-            activeQuestions.append(question)
+        # get all active questions for this course
+        activeQuestions = []
+        for question in questions.find({'cid': cid}):
+            if question['isActive'] == 1:
+                activeQuestions.append(question)
 
-    if 'student' in userData:
-        return render_template('coursePage.html', cid=cid, qid=question['_id'], student=True, courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
+        if 'student' in userData:
+            return render_template('coursePage.html', cid=cid, qid=question['_id'], student=True, courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
+    else:
+        return redirect(url_for('home'))
 
 
 # receives completed createquestion forms
@@ -320,56 +339,58 @@ def coursePage():
 
 @ app.route('/activequestion', methods=['GET', 'POST'])
 def activequestion():
+    if userLoggedIn():
+        if request.method == "POST":
+            userData = hatTop.find_one({'username': session.get('username')})
+            question = request.form.to_dict()
 
-    if request.method == "POST":
-        userData = hatTop.find_one({'username': session.get('username')})
-        question = request.form.to_dict()
+            cid = question['courseID']
+            # get courseData
+            obj = ObjectId(cid)
+            course = professorAndStudents.find_one({'_id': obj})
 
-        cid = question['courseID']
+            # put all the answers options into list
+            answers = []
+            for key in question:
+                if key[:6] == 'answer' and not (question[key] == ""):
+                    answers.append(question[key])
+
+            # add question to questions collection
+            q = questions.insert_one({'cid': cid, 'question': html.escape(
+                question['question']), 'answers': answers, 'correctAnswer': int(question['correctAnswer'][6:]), 'isActive': 1})
+
+            # if it's a professor then don't render as form, just as text
+            if 'professor' in userData:
+                return render_template('activeQuestion.html', courseID=cid, courseName=course['coursePrefix'], questionID=q.inserted_id, professor=True, question=html.escape(question['question']), answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
+            if 'student' in userData:
+                return render_template('loginPage.html')
+
+        # if it's a get then use question id to get information from db
+        qid = request.args.get('qid')
+        cid = request.args.get('cid')
+        obj = ObjectId(qid)
+        q = questions.find_one({'_id': obj})
+
         # get courseData
         obj = ObjectId(cid)
         course = professorAndStudents.find_one({'_id': obj})
 
-        # put all the answers options into list
-        answers = []
-        for key in question:
-            if key[:6] == 'answer' and not (question[key] == ""):
-                answers.append(question[key])
+        # get the answers
+        ans1 = q['answers'][0]
+        ans2 = q['answers'][1]
+        ans3 = ""
+        ans4 = ""
+        ans5 = ""
+        if (len(q['answers']) >= 3):
+            ans3 = q['answers'][2]
+        if (len(q['answers']) >= 4):
+            ans4 = q['answers'][3]
+        if (len(q['answers']) >= 5):
+            ans5 = q['answers'][4]
 
-        # add question to questions collection
-        q = questions.insert_one({'cid': cid, 'question': html.escape(
-            question['question']), 'answers': answers, 'correctAnswer': int(question['correctAnswer'][6:]), 'isActive': 1})
-
-        # if it's a professor then don't render as form, just as text
-        if 'professor' in userData:
-            return render_template('activeQuestion.html', courseID=cid, courseName=course['coursePrefix'], questionID=q.inserted_id, professor=True, question=html.escape(question['question']), answer1=html.escape(question['answer1']), answer2=html.escape(question['answer2']), answer3=html.escape(question['answer3']), answer4=html.escape(question['answer4']), answer5=html.escape(question['answer5']))
-        if 'student' in userData:
-            return render_template('loginPage.html')
-
-    # if it's a get then use question id to get information from db
-    qid = request.args.get('qid')
-    cid = request.args.get('cid')
-    obj = ObjectId(qid)
-    q = questions.find_one({'_id': obj})
-
-    # get courseData
-    obj = ObjectId(cid)
-    course = professorAndStudents.find_one({'_id': obj})
-
-    # get the answers
-    ans1 = q['answers'][0]
-    ans2 = q['answers'][1]
-    ans3 = ""
-    ans4 = ""
-    ans5 = ""
-    if (len(q['answers']) >= 3):
-        ans3 = q['answers'][2]
-    if (len(q['answers']) >= 4):
-        ans4 = q['answers'][3]
-    if (len(q['answers']) >= 5):
-        ans5 = q['answers'][4]
-
-    return render_template('activeQuestion.html', questionID=qid, courseID=cid, courseName=course['coursePrefix'], student=True, question=q['question'], answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+        return render_template('activeQuestion.html', questionID=qid, courseID=cid, courseName=course['coursePrefix'], student=True, question=q['question'], answer1=ans1, answer2=ans2, answer3=ans3, answer4=ans4, answer5=ans5)
+    else:
+        return redirect(url_for('home'))
 
 # upon ending a question:
 # 1. Set the question to inactive in DB
@@ -379,21 +400,24 @@ def activequestion():
 
 @ app.route('/endQuestion', methods=['POST'])
 def stopQuestion():
-    data = request.form.to_dict()
-    cid = data['courseID']
-    qid = data['questionID']
-    qobj = ObjectId(qid)
+    if userLoggedIn():
+        data = request.form.to_dict()
+        cid = data['courseID']
+        qid = data['questionID']
+        qobj = ObjectId(qid)
 
-    # get courseData
-    print('cid: ', cid)
-    print('qid: ', qid)
-    obj = ObjectId(cid)
-    course = professorAndStudents.find_one({'_id': obj})
+        # get courseData
+        print('cid: ', cid)
+        print('qid: ', qid)
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
 
-    questions.update_one({'_id': qobj}, {'$set': {'isActive': 0}})
+        questions.update_one({'_id': qobj}, {'$set': {'isActive': 0}})
 
-    socket.emit('questionClosed', {'qid': qid})
-    return render_template('coursePage.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
+        socket.emit('questionClosed', {'qid': qid})
+        return render_template('coursePage.html', professor=True, courseName=course['coursePrefix'], courseID=cid)
+    else:
+        return redirect(url_for('home'))
 
 # Don't really have to do anything when question starts
 # This is just a sanity check to confirm socket connection has correctly happened
@@ -450,24 +474,27 @@ def handleSubmission(answerInfo):
 
 @ app.route('/gradebook', methods=["GET"])
 def gradebook():
-    cid = request.args.get('courseID')
-    userData = hatTop.find_one({'username': session.get('username')})
-    obj = ObjectId(cid)
-    course = professorAndStudents.find_one({'_id': obj})
-    final = []
+    if userLoggedIn():
+        cid = request.args.get('courseID')
+        userData = hatTop.find_one({'username': session.get('username')})
+        obj = ObjectId(cid)
+        course = professorAndStudents.find_one({'_id': obj})
+        final = []
 
-    if 'professor' in userData:
-        for g in gradeBook.find():
-            if g['cid'] == cid:
-                final.append()
-        return render_template('profGradeboook.html', courseName=course['coursePrefix'], gradeBookData=final)
-
-    if 'student' in userData:
-        for g in gradeBook.find():
-            if g['student'] == session.get('username'):
+        if 'professor' in userData:
+            for g in gradeBook.find():
                 if g['cid'] == cid:
                     final.append()
-        return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
+            return render_template('profGradeboook.html', courseName=course['coursePrefix'], gradeBookData=final)
+
+        if 'student' in userData:
+            for g in gradeBook.find():
+                if g['student'] == session.get('username'):
+                    if g['cid'] == cid:
+                        final.append()
+            return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
+    else:
+        return redirect(url_for('home'))
 
 
 if __name__ == "__main__":

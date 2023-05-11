@@ -3,6 +3,44 @@
 {%block head%}
 <link rel="stylesheet" href="{{url_for('static', filename='css/home.css')}}">
 <title>Home</title>
+<script>
+    function logoutDisplayToggle(){
+
+        if(document.getElementsByClassName("logoutDiv")[0]){
+            var logoutDiv= document.getElementsByClassName("logoutDiv")[0];
+
+            if(logoutDiv.style.display == "block"){
+                logoutDiv.style.display = "none"
+            }
+            else{
+                logoutDiv.style.display = "block"
+            }
+            
+        }else{
+            var profileIcon = document.getElementsByClassName("profileIconDiv")[0];
+                var logoutDiv = document.createElement("div");
+                var logoutLink = document.createElement("a");
+                var logoutText = document.createTextNode("Logout");
+                logoutLink.appendChild(logoutText);
+                logoutDiv.appendChild(logoutLink);
+                profileIcon.appendChild(logoutDiv)
+                logoutDiv.classList.add("logoutDiv")
+                logoutDiv.addEventListener("click", ()=>{
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/logout", true);
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status === 200) {
+                            console.log("Logout successful");
+                            // Optionally, perform any additional actions after logout
+                        }
+                    };
+                    xhr.send();
+                })
+                logoutDiv.style.display = "block"
+        }
+    }
+</script>
 {%endblock%}
 
 {%block body%}
@@ -21,7 +59,7 @@
             <h1>My Courses</h1>
         </div>
         <div class="profileIconDiv">
-            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile"/>
+            <img class="profileIcon" src="{{url_for('static', filename='images/user.png')}}" alt="Profile" onclick="logoutDisplayToggle()"/>
         </div>
         <div class="hrAfterNav">
             <hr/>

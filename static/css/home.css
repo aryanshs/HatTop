@@ -63,11 +63,25 @@
   
   margin-right: 0%;
   text-align: right;
+  cursor: pointer;
 }
 .profileIcon{
+  opacity: 1;
   width: 8%;
 }
+.profileIcon:hover{
+  opacity: 0.5;
+}
 
+.logoutDiv a{
+  color: red;
+  font-size: medium;
+  opacity: 1;
+}
+
+.logoutDiv:hover{
+  opacity: 0.5;
+}
 /*Nav Style End*/
 
 /*Home Page Content Start*/
