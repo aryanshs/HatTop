@@ -10,7 +10,7 @@ import json
 import html
 import re
 import bcrypt
-
+import html
 
 app = Flask(__name__)
 app.secret_key = 'cse312'
@@ -19,9 +19,9 @@ client = MongoClient('mongo')
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
-gradeBook = db.gradeBook  #collection to store gradebook for each course
-questions = db.questions #collection to store all questions
-professorAndStudents = db.professorAndStudents #collection for classes
+gradeBook = db.gradeBook   # collection to store gradebook for each course
+questions = db.questions  # collection to store all questions
+professorAndStudents = db.professorAndStudents  # collection for classes
 
 
 # default Page
@@ -63,7 +63,7 @@ def signUp():
             data['courses'] = []
             hatTop.insert_one(data)
             # this can be called from anywhere
-            session['username'] = data['username']
+            session['username'] = html.escape(data['username'])     # escape html injection
 
             return redirect(url_for('profStudent'))
 
@@ -100,6 +100,7 @@ def profStudent():
 def loginPhase2():
     if request.method == "POST":
         data = request.form.to_dict()  # converting the post data into a dictionary
+        data['username'] = html.escape(data['username'])    # escape html injection
         schoolData = ""
         if data['schoolData']:
             schoolData = data['schoolData']
@@ -127,6 +128,7 @@ def loginPhase2():
                 return render_template('loginPhase2.html', schoolSelected=userData['schoolData'], username=data['username'], SchoolError=error_message)
             else:
                 # if everything was correctly entered, we render the homepage
+
                 return redirect(url_for('homePage'))
 
     return render_template('loginPhase2.html')
@@ -146,7 +148,6 @@ def homePage():
             classData2 = []
             index = 0
             for i in userData["courses"]:
-
                 for j in professorAndStudents.find(
                         {'courseCode': i}):
                     classData2.append(j)
