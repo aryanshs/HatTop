@@ -327,7 +327,7 @@ def coursePage():
                 activeQuestions.append(question)
 
         if 'student' in userData:
-            return render_template('coursePage.html', cid=cid, qid=question['_id'], student=True, courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
+            return render_template('coursePage.html', cid=cid, student=True, courseName=course['coursePrefix'], courseID=cid, activeQuestions=activeQuestions)
     else:
         return redirect(url_for('home'))
 
@@ -484,14 +484,14 @@ def gradebook():
         if 'professor' in userData:
             for g in gradeBook.find():
                 if g['cid'] == cid:
-                    final.append()
-            return render_template('profGradeboook.html', courseName=course['coursePrefix'], gradeBookData=final)
+                    final.append(g)
+            return render_template('profGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
 
         if 'student' in userData:
             for g in gradeBook.find():
                 if g['student'] == session.get('username'):
                     if g['cid'] == cid:
-                        final.append()
+                        final.append(g)
             return render_template('studGradebook.html', courseName=course['coursePrefix'], gradeBookData=final)
     else:
         return redirect(url_for('home'))
