@@ -13,11 +13,23 @@ import html
 import re
 import bcrypt
 import html
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
+# app.secret_key = 'cse312'
+# socket = SocketIO(app, async_mode="gevent")  # creating socket
+# client = MongoClient('mongo')
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent")  # creating socket
-client = MongoClient('mongo')
+
+# MongoDB connection
+mongo_uri = os.getenv('MONGODB_URI')
+client = MongoClient(mongo_uri)
+db = client.get_database('<database>')
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
