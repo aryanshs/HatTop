@@ -17,7 +17,7 @@ import html
 app = Flask(__name__)
 app.secret_key = 'cse312'
 socket = SocketIO(app, async_mode="gevent")  # creating socket
-client = MongoClient('mongo', 27017)
+client = MongoClient('mongo')
 
 db = client.flask_db  # creating a flask databse
 hatTop = db.hatTop  # collection to store user information
@@ -62,7 +62,8 @@ def signUp():
         else:
             # Hashing password
             salt = bcrypt.gensalt()
-            hashedPassword = bcrypt.hashpw(data['password'].encode('utf-8'), salt)
+            hashedPassword = bcrypt.hashpw(
+                data['password'].encode('utf-8'), salt)
             data['password'] = hashedPassword
             data['confirmPassword'] = hashedPassword
             data['salt'] = salt
@@ -72,7 +73,8 @@ def signUp():
 
             hatTop.insert_one(data)
             # this can be called from anywhere
-            session['username'] = html.escape(data['username'])     # escape html injection
+            session['username'] = html.escape(
+                data['username'])     # escape html injection
 
             return redirect(url_for('profStudent'))
 
@@ -109,7 +111,8 @@ def profStudent():
 def loginPhase2():
     if request.method == "POST":
         data = request.form.to_dict()  # converting the post data into a dictionary
-        data['username'] = html.escape(data['username'])    # escape html injection
+        data['username'] = html.escape(
+            data['username'])    # escape html injection
         schoolData = ""
 
         for key, value in data.items():
@@ -175,9 +178,10 @@ def homePage():
             all_courses = []
             courses = userData['courses']
             for course in courses:
-                all_courses.append(professorAndStudents.find_one({'courseCode': course}))
+                all_courses.append(
+                    professorAndStudents.find_one({'courseCode': course}))
             print(all_courses)
-            return render_template('homePage.html', student=True, noContent=False,classesData = all_courses) 
+            return render_template('homePage.html', student=True, noContent=False, classesData=all_courses)
     else:
         return redirect(url_for('home'))
 
@@ -408,7 +412,7 @@ def stopQuestion():
         # get courseData
         obj = ObjectId(cid)
         course = professorAndStudents.find_one({'_id': obj})
-        #get courseData
+        # get courseData
         obj = ObjectId(cid)
         course = professorAndStudents.find_one({'_id': obj})
 
@@ -498,4 +502,4 @@ def gradebook():
 
 
 if __name__ == "__main__":
-    socket.run(app, host = "0.0.0.0", port=5000)
+    socket.run(app, host="0.0.0.0", port=5000)
