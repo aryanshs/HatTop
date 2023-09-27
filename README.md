@@ -1,4 +1,4 @@
-# CSE312TeamProject
+# HatTop
 
 ## Deployment
 
